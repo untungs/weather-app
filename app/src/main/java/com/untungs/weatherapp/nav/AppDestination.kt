@@ -1,6 +1,6 @@
 package com.untungs.weatherapp.nav
 
-interface AppNavigation {
+interface AppDestination {
     val route: String
     val destination: String
 }

@@ -9,14 +9,22 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.untungs.weatherapp.home.HomeNav
-import com.untungs.weatherapp.home.homeGraph
+import com.untungs.weatherapp.feature.home.*
+import com.untungs.weatherapp.feature.search.SearchDestination
+import com.untungs.weatherapp.feature.search.SearchScreen
+import com.untungs.weatherapp.feature.search.SearchViewModel
+import com.untungs.weatherapp.feature.search.searchGraph
 import com.untungs.weatherapp.ui.component.WeatherAppBar
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -29,8 +37,8 @@ class MainActivity : ComponentActivity() {
 fun WeatherApp() {
     WeatherAppTheme {
         val navController = rememberNavController()
+//        val currentBackstack by navController.currentBackStackEntryAsState()
         var openSearch by remember { mutableStateOf(false) }
-        var searchText by remember { mutableStateOf("") }
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -38,22 +46,24 @@ fun WeatherApp() {
         ) {
             Scaffold(
                 topBar ={
-                    WeatherAppBar(
+                    WeatherAppBar (
                         openSearch = openSearch,
-                        searchText = searchText,
-                        onTextChange = { searchText = it},
-                        onCloseClicked = { openSearch = false },
-                        onSearchClicked = { searchText = it },
+                        onCloseClicked = {
+                            navController.navigate(HomeDestination.route)
+                            openSearch = false
+                                         },
+                        onSearchClicked = { navController.navigate("${SearchDestination.route}/$it") },
                         onSearchTriggered = { openSearch = true }
                     )
                 }
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = HomeNav.route,
+                    startDestination = HomeDestination.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     homeGraph()
+                    searchGraph {  }
                 }
             }
         }

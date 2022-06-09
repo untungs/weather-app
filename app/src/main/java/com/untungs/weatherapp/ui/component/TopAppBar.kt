@@ -22,16 +22,12 @@ import com.untungs.weatherapp.R
 @Composable
 fun WeatherAppBar(
     openSearch: Boolean,
-    searchText: String,
-    onTextChange: (String) -> Unit,
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit,
     onSearchTriggered: () -> Unit
 ) {
     if (openSearch) {
         SearchAppBar(
-            text = searchText,
-            onTextChange = onTextChange,
             onCloseClicked = onCloseClicked,
             onSearchClicked = onSearchClicked
         )
@@ -57,11 +53,11 @@ fun WeatherAppBar(
 
 @Composable
 fun SearchAppBar(
-    text: String,
-    onTextChange: (String) -> Unit,
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit,
 ) {
+    var text by remember { mutableStateOf("") }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -71,9 +67,7 @@ fun SearchAppBar(
         TextField(modifier = Modifier
             .fillMaxWidth(),
             value = text,
-            onValueChange = {
-                onTextChange(it)
-            },
+            onValueChange = { text = it },
             placeholder = {
                 Text(
                     modifier = Modifier
@@ -130,8 +124,6 @@ fun SearchAppBar(
 fun WeatherAppBarPreview() {
     WeatherAppBar(
         openSearch = false,
-        searchText = "",
-        onTextChange = {},
         onCloseClicked = {},
         onSearchClicked = {},
         onSearchTriggered = {}
@@ -141,8 +133,6 @@ fun WeatherAppBarPreview() {
 @Composable
 fun SearchAppBarPreview() {
     SearchAppBar(
-        text = "Yogyakarta",
-        onTextChange = {},
         onCloseClicked = {},
         onSearchClicked = {}
     )

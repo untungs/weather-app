@@ -1,16 +1,16 @@
-package com.untungs.weatherapp.home
+package com.untungs.weatherapp.feature.home
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.untungs.weatherapp.nav.AppNavigation
+import com.untungs.weatherapp.nav.AppDestination
 
-object HomeNav : AppNavigation {
+object HomeDestination : AppDestination {
     override val route: String = "home_route"
     override val destination: String = "home_destination"
 }
 
 fun NavGraphBuilder.homeGraph() {
-    composable(route = HomeNav.route) {
+    composable(route = HomeDestination.route) {
         HomeScreen()
     }
 }

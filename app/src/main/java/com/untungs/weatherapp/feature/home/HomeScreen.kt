@@ -1,4 +1,4 @@
-package com.untungs.weatherapp.home
+package com.untungs.weatherapp.feature.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

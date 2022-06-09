@@ -1,11 +1,10 @@
 package com.untungs.weatherapp.feature.search
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -23,16 +22,38 @@ import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 
 @Composable
 fun SearchRoute(viewModel: SearchViewModel = hiltViewModel()) {
-    val cities by viewModel.cities.collectAsState()
-    SearchScreen(cities)
+    val uiState by viewModel.searchUiState.collectAsState()
+    SearchScreen(uiState)
 }
 
 @Composable
-fun SearchScreen(cities: List<CityGeo>) {
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(cities) {
-            SearchItem(it)
+fun SearchScreen(uiState: SearchUiState) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (uiState) {
+            is SearchUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            is SearchUiState.Success -> {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(uiState.cities) {
+                        SearchItem(it)
+                    }
+                }
+            }
+            is SearchUiState.Error -> {
+                Text(
+                    text = "Something went wrong",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+            is SearchUiState.Unknown -> {
+                Text(
+                    text = "Search cities with the search bar above",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
+
     }
 }
 
@@ -61,6 +82,8 @@ fun SearchItem(cityGeo: CityGeo) {
 @Composable
 fun SearchPreview() {
     WeatherAppTheme {
-        SearchScreen(listOf(CityGeo("Yogyakarta", 0f, 0f, "ID")))
+        SearchScreen(
+            SearchUiState.Success(listOf(CityGeo("Yogyakarta", 0f, 0f, "ID")))
+        )
     }
 }

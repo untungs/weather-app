@@ -6,7 +6,6 @@ import com.untungs.weatherapp.nav.AppDestination
 
 object HomeDestination : AppDestination {
     override val route: String = "home_route"
-    override val destination: String = "home_destination"
 }
 
 fun NavGraphBuilder.homeGraph() {

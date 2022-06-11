@@ -1,5 +1,6 @@
 package com.untungs.weatherapp.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -10,16 +11,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.untungs.weatherapp.R
-import com.untungs.weatherapp.data.Temp
-import com.untungs.weatherapp.data.Weather
-import com.untungs.weatherapp.data.WeatherStat
+import com.untungs.weatherapp.data.*
 
 @Composable
-fun WeatherCard(titleCard: String, stat: WeatherStat) {
+fun WeatherCard(
+    currentWeather: LocationWithCurrentWeather,
+    onClick: (Location) -> Unit
+) {
+    WeatherCard(
+        titleCard = currentWeather.location.name,
+        stat = currentWeather.weather,
+        modifier = Modifier.clickable {
+            onClick(currentWeather.location)
+        }
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = { onClick(currentWeather.location) }) {
+                Text(text = "Weather Forecast")
+            }
+        }
+    }
+}
+
+@Composable
+fun WeatherCard(
+    titleCard: String,
+    stat: WeatherStat,
+    modifier: Modifier = Modifier,
+    bottomContent: @Composable (() -> Unit)? = null
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp, 8.dp, 8.dp, 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -119,6 +143,8 @@ fun WeatherCard(titleCard: String, stat: WeatherStat) {
                     }
                 }
             }
+
+            bottomContent?.invoke()
         }
     }
 }

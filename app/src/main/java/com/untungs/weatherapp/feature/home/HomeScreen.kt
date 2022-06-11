@@ -10,12 +10,14 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.data.LocationWithCurrentWeather
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeRoute(
     snackbarHostState: SnackbarHostState,
+    onClickLocation: (Location) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -41,7 +43,7 @@ fun HomeRoute(
         }
     }
 
-    HomeScreen(uiState, locations) {
+    HomeScreen(uiState, locations, onClickLocation) {
         viewModel.refreshCurrentWeather()
     }
 }
@@ -50,6 +52,7 @@ fun HomeRoute(
 fun HomeScreen(
     uiState: LoadingUiState<Unit>,
     locations: List<LocationWithCurrentWeather>,
+    onClickLocation: (Location) -> Unit,
     onRefresh: () -> Unit
 ) {
     SwipeRefresh(
@@ -58,7 +61,7 @@ fun HomeScreen(
     ) {
         LazyColumn {
             items(locations) {
-                WeatherCard(it.location.name, it.weather)
+                WeatherCard(it, onClickLocation)
             }
         }
     }

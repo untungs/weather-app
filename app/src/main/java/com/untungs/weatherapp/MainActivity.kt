@@ -71,7 +71,9 @@ fun WeatherApp() {
                 startDestination = HomeDestination.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                homeGraph(scaffoldState.snackbarHostState)
+                homeGraph(scaffoldState.snackbarHostState) {
+                    navController.navigateToWeatherDaily(it)
+                }
                 searchGraph {
                     navController.popBackStack(SearchDestination.route, true)
                     navController.navigateToWeatherDaily(it)

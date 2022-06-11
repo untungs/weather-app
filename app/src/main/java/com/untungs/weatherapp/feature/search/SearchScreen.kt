@@ -17,17 +17,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.untungs.weatherapp.R
-import com.untungs.weatherapp.network.model.CityGeo
+import com.untungs.weatherapp.data.CityLocation
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 
 @Composable
-fun SearchRoute(viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchRoute(
+    onClickItem: (location: CityLocation) -> Unit,
+    viewModel: SearchViewModel = hiltViewModel()
+) {
     val uiState by viewModel.searchUiState.collectAsState()
-    SearchScreen(uiState)
+    SearchScreen(uiState, onClickItem)
 }
 
 @Composable
-fun SearchScreen(uiState: SearchUiState) {
+fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (uiState) {
             is SearchUiState.Loading -> {
@@ -36,7 +39,7 @@ fun SearchScreen(uiState: SearchUiState) {
             is SearchUiState.Success -> {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(uiState.cities) {
-                        SearchItem(it)
+                        SearchItem(it, onClickItem)
                     }
                 }
             }
@@ -58,11 +61,11 @@ fun SearchScreen(uiState: SearchUiState) {
 }
 
 @Composable
-fun SearchItem(cityGeo: CityGeo) {
+fun SearchItem(location: CityLocation, onClickItem: (location: CityLocation) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { onClickItem(location) }
     ) {
         Icon(
             modifier = Modifier.padding(8.dp),
@@ -70,7 +73,7 @@ fun SearchItem(cityGeo: CityGeo) {
             contentDescription = ""
         )
         Text(
-            text = "${cityGeo.name}${cityGeo.state?.let { ", $it" } ?: ""}, ${cityGeo.country}",
+            text = location.cityName,
             modifier = Modifier
                 .padding(0.dp, 8.dp)
                 .align(Alignment.CenterVertically)
@@ -82,8 +85,6 @@ fun SearchItem(cityGeo: CityGeo) {
 @Composable
 fun SearchPreview() {
     WeatherAppTheme {
-        SearchScreen(
-            SearchUiState.Success(listOf(CityGeo("Yogyakarta", 0f, 0f, "ID")))
-        )
+        SearchScreen(SearchUiState.Success(listOf(CityLocation("Yogyakarta", 0f, 0f)))) { }
     }
 }

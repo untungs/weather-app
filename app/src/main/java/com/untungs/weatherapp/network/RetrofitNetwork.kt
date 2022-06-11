@@ -3,6 +3,7 @@ package com.untungs.weatherapp.network
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.untungs.weatherapp.BuildConfig
 import com.untungs.weatherapp.network.model.CityGeo
+import com.untungs.weatherapp.network.model.WeatherDaily
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -20,9 +21,17 @@ private interface NetworkApi {
 
     @GET(value = "geo/1.0/direct")
     suspend fun getCities(
-            @Query("q") name: String,
-            @Query("limit") limit: Int = 10
+        @Query("q") name: String,
+        @Query("limit") limit: Int = 10
     ): List<CityGeo>
+
+    @GET(value = "data/2.5/onecall")
+    suspend fun getWeatherDaily(
+        @Query("lat") lat: Float,
+        @Query("lon") lon: Float,
+        @Query("units") units: String = "metric",
+        @Query("exclude") exclude: String = "hourly,minutely"
+    ): WeatherDaily
 }
 
 @Singleton
@@ -48,6 +57,9 @@ class RetrofitNetwork @Inject constructor() : NetworkDataSource {
         .create(NetworkApi::class.java)
 
     override suspend fun getCities(name: String): List<CityGeo> = networkApi.getCities(name)
+
+    override suspend fun getWeatherDaily(lat: Float, lon: Float): WeatherDaily =
+        networkApi.getWeatherDaily(lat, lon)
 }
 
 class NetworkInterceptor : Interceptor {

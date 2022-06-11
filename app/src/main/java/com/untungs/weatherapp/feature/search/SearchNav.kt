@@ -5,36 +5,33 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.untungs.weatherapp.data.CityLocation
 import com.untungs.weatherapp.nav.AppDestination
 
 object SearchDestination : AppDestination {
-    private const val path = "search_route"
+    const val path = "search"
     const val searchKey = "searchKey"
     override val route: String = "$path?q={$searchKey}"
-
-    fun route(searchKey: String): String {
-        return "$path?q={$searchKey}"
-    }
 }
 
 fun NavGraphBuilder.searchGraph(
-    onSearchItemClick: () -> Unit
+    onSearchItemClick: (location: CityLocation) -> Unit
 ) {
     composable(
         route = SearchDestination.route,
         arguments = listOf(
             navArgument(SearchDestination.searchKey) {
                 type = NavType.StringType
-                nullable = true
+                defaultValue = ""
             }
-        )
+        ),
     ) {
-        SearchRoute()
+        SearchRoute(onSearchItemClick)
     }
 }
 
-fun NavController.navigateToSearch(searchKey: String? = null) {
-    navigate(searchKey?.let {  SearchDestination.route(it) } ?: SearchDestination.route)  {
+fun NavController.navigateToSearch(searchKey: String = "") {
+    navigate("${SearchDestination.path}?q=$searchKey")  {
         popUpTo(SearchDestination.route) {
             inclusive = true
         }

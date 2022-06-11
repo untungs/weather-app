@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -17,45 +18,63 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.untungs.weatherapp.R
 
+sealed interface AppBarState {
+    data class Default(
+        val title: String,
+        val hasBackStack: Boolean,
+        val onBackClicked: () -> Unit,
+        val onSearchTriggered: () -> Unit
+    ) : AppBarState
+
+    data class Search(
+        val onCloseClicked: () -> Unit,
+        val onSearchClicked: (String) -> Unit
+    ) : AppBarState
+}
+
 @Composable
-fun WeatherAppBar(
-    openSearch: Boolean,
-    onCloseClicked: () -> Unit,
-    onSearchClicked: (String) -> Unit,
-    onSearchTriggered: () -> Unit
-) {
-    if (openSearch) {
-        SearchAppBar(
-            onCloseClicked = onCloseClicked,
-            onSearchClicked = onSearchClicked
-        )
-    } else {
-        TopAppBar(
-            title = {
-                Text(text = stringResource(id = R.string.app_name))
-            },
-            actions = {
-                IconButton(
-                    onClick = { onSearchTriggered() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.White
-                    )
-                }
-            }
-        )
+fun WeatherAppBar(state: AppBarState) {
+    when (state) {
+        is AppBarState.Default -> DefaultAppBar(state)
+        is AppBarState.Search -> SearchAppBar(state)
     }
 }
 
 @Composable
-fun SearchAppBar(
-    onCloseClicked: () -> Unit,
-    onSearchClicked: (String) -> Unit,
-) {
+fun DefaultAppBar(state: AppBarState.Default) {
+    TopAppBar(
+        title = { Text(text = state.title) },
+        navigationIcon = if (state.hasBackStack) {
+            {
+                IconButton(onClick = state.onBackClicked) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        } else {
+            null
+        },
+        actions = {
+            IconButton(
+                onClick = state.onSearchTriggered
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Search Icon",
+                    tint = Color.White
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun SearchAppBar(state: AppBarState.Search) {
     var text by remember { mutableStateOf("") }
 
     Surface(
@@ -95,7 +114,7 @@ fun SearchAppBar(
             },
             trailingIcon = {
                 IconButton(
-                    onClick = onCloseClicked
+                    onClick = state.onCloseClicked
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -109,7 +128,7 @@ fun SearchAppBar(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearchClicked(text)
+                    state.onSearchClicked(text)
                 }
             ),
             colors = TextFieldDefaults.textFieldColors(
@@ -121,19 +140,19 @@ fun SearchAppBar(
 
 @Preview
 @Composable
-fun WeatherAppBarPreview() {
-    WeatherAppBar(
-        openSearch = false,
-        onCloseClicked = {},
-        onSearchClicked = {},
-        onSearchTriggered = {}
+fun DefaultAppBarPreview() {
+    DefaultAppBar(
+        AppBarState.Default(
+            title = stringResource(id = R.string.app_name),
+            hasBackStack = true,
+            onBackClicked = {},
+            onSearchTriggered = {}
+        )
     )
 }
 
+@Preview
 @Composable
 fun SearchAppBarPreview() {
-    SearchAppBar(
-        onCloseClicked = {},
-        onSearchClicked = {}
-    )
+    SearchAppBar(AppBarState.Search(onCloseClicked = {}, onSearchClicked = {}))
 }

@@ -6,7 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.untungs.weatherapp.data.CityLocation
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.nav.AppDestination
 
 object WeatherDailyDestination : AppDestination {
@@ -36,6 +36,6 @@ fun NavGraphBuilder.weatherGraph(snackbarHostState: SnackbarHostState) {
     }
 }
 
-fun NavController.navigateToWeatherDaily(cityLocation: CityLocation) = with(cityLocation) {
-    navigate("${WeatherDailyDestination.path}?city=${cityName}&lat=$lat&lon=$lon")
+fun NavController.navigateToWeatherDaily(location: Location) = with(location) {
+    navigate("${WeatherDailyDestination.path}?city=${name}&lat=$lat&lon=$lon")
 }

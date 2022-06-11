@@ -1,6 +1,6 @@
 package com.untungs.weatherapp.data.repository
 
-import com.untungs.weatherapp.data.CityLocation
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.local.dao.FavoriteLocationDao
 import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
 import com.untungs.weatherapp.network.NetworkDataSource
@@ -19,7 +19,7 @@ class CityRepository @Inject constructor(
 
     val favoriteLocations: Flow<List<FavoriteLocationEntity>> = favoriteLocationDao.getFavoriteLocations()
 
-    suspend fun getCities(name: String): List<CityLocation> = withContext(dispatcher) {
+    suspend fun getCities(name: String): List<Location> = withContext(dispatcher) {
         networkDataSource.getCities(name)
             .map(CityGeo::toDomainModel)
     }

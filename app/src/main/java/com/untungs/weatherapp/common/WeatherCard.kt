@@ -15,7 +15,7 @@ import com.untungs.weatherapp.data.Weather
 import com.untungs.weatherapp.data.WeatherStat
 
 @Composable
-fun WeatherCard(stat: WeatherStat) {
+fun WeatherCard(titleCard: String, stat: WeatherStat) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -27,7 +27,7 @@ fun WeatherCard(stat: WeatherStat) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = stat.dayOrLocation,
+                text = titleCard,
                 modifier = Modifier.padding(8.dp, 0.dp),
                 style = MaterialTheme.typography.h5
             )
@@ -127,7 +127,7 @@ fun WeatherCard(stat: WeatherStat) {
 @Composable
 fun WeatherCardPreview() {
     val weather = Weather("", "", "")
-    WeatherCard(WeatherStat.CurrentWeatherStat("Today", 0, weather, 30.57f, 10.08f, 30f))
+    WeatherCard("Today", WeatherStat.CurrentWeatherStat("Today", 0, weather, 30.57f, 10.08f, 30f))
 }
 
 @Preview
@@ -135,6 +135,7 @@ fun WeatherCardPreview() {
 fun WeatherCardDailyPreview() {
     val weather = Weather("", "", "")
     WeatherCard(
+        "Monday",
         WeatherStat.DailyWeatherStat(
             "Monday",
             0,

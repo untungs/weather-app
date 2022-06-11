@@ -19,14 +19,14 @@ data class WeatherDailyStat(
 )
 
 sealed interface WeatherStat {
-    val dayOrLocation: String
+    val day: String
     val timestamp: Long
     val weather: Weather
     val humidity: Float
     val windSpeed: Float
 
     data class CurrentWeatherStat(
-        override val dayOrLocation: String,
+        override val day: String,
         override val timestamp: Long,
         override val weather: Weather,
         override val humidity: Float,
@@ -35,7 +35,7 @@ sealed interface WeatherStat {
     ) : WeatherStat
 
     data class DailyWeatherStat(
-        override val dayOrLocation: String,
+        override val day: String,
         override val timestamp: Long,
         override val weather: Weather,
         override val humidity: Float,

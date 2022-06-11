@@ -19,10 +19,12 @@ fun WeatherDailyRoute(
     val scope = rememberCoroutineScope()
 
     uiState.errorMessage?.let {
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(message = it)
-            if (result == SnackbarResult.Dismissed) {
-                viewModel.onDismissError()
+        LaunchedEffect(snackbarHostState) {
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(message = it)
+                if (result == SnackbarResult.Dismissed) {
+                    viewModel.onDismissError()
+                }
             }
         }
     }
@@ -44,10 +46,10 @@ fun WeatherDailyScreen(
         LazyColumn {
             uiState.weatherDaily?.let { stat ->
                 item {
-                    WeatherCard(stat.current)
+                    WeatherCard(stat.current.day, stat.current)
                 }
                 items(stat.daily) {
-                    WeatherCard(it)
+                    WeatherCard(it.day, it)
                 }
             }
         }

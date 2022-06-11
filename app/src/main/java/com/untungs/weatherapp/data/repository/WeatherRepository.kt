@@ -5,15 +5,18 @@ import com.untungs.weatherapp.data.Temp
 import com.untungs.weatherapp.data.Weather
 import com.untungs.weatherapp.data.WeatherDailyStat
 import com.untungs.weatherapp.data.WeatherStat
+import com.untungs.weatherapp.local.dao.FavoriteLocationDao
+import com.untungs.weatherapp.local.entity.CurrentWeatherDb
+import com.untungs.weatherapp.local.entity.WeatherDb
 import com.untungs.weatherapp.network.NetworkDataSource
-import com.untungs.weatherapp.network.model.WeatherDaily
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class WeatherRepository @Inject constructor(
     private val dispatcher: CoroutineDispatcher,
-    private val networkDataSource: NetworkDataSource
+    private val networkDataSource: NetworkDataSource,
+    private val favoriteLocationDao: FavoriteLocationDao
 ) {
     suspend fun getWeatherDaily(lat: Float, lon: Float): WeatherDailyStat =
         withContext(dispatcher) {
@@ -47,4 +50,22 @@ class WeatherRepository @Inject constructor(
                 WeatherDailyStat(current, daily)
             }
         }
+
+    suspend fun updateWeather(lat: Float, lon: Float) = withContext(dispatcher) {
+        val location = favoriteLocationDao.getFavoriteLocation(lat, lon) ?: return@withContext
+        val weatherDaily = networkDataSource.getWeatherDaily(lat, lon)
+        val updatedWeather = with(weatherDaily.current) {
+            val weather1 = weather.first()
+            location.copy(
+                currentWeather = CurrentWeatherDb(
+                    WeatherDb(weather1.main, weather1.description, weather1.icon),
+                    humidity,
+                    wind_speed,
+                    temp,
+                    dt.times(1000)
+                )
+            )
+        }
+        favoriteLocationDao.update(updatedWeather)
+    }
 }

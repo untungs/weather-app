@@ -2,6 +2,9 @@ package com.untungs.weatherapp.local.entity
 
 import androidx.room.Embedded
 import androidx.room.Entity
+import com.untungs.weatherapp.common.toDateString
+import com.untungs.weatherapp.data.Location
+import com.untungs.weatherapp.data.LocationWithCurrentWeather
 import com.untungs.weatherapp.data.Weather
 import com.untungs.weatherapp.data.WeatherStat
 
@@ -32,13 +35,16 @@ data class WeatherDb(
     val icon: String
 )
 
-fun FavoriteLocationEntity.toDomain() = WeatherStat.CurrentWeatherStat(
-    locationName,
-    currentWeather.timestamp,
-    currentWeather.weather.toDomain(),
-    currentWeather.humidity,
-    currentWeather.windSpeed,
-    currentWeather.temp
+fun FavoriteLocationEntity.toDomain() = LocationWithCurrentWeather(
+    location = Location(locationName, lat, lon),
+    weather = WeatherStat.CurrentWeatherStat(
+        currentWeather.timestamp.toDateString(),
+        currentWeather.timestamp,
+        currentWeather.weather.toDomain(),
+        currentWeather.humidity,
+        currentWeather.windSpeed,
+        currentWeather.temp
+    )
 )
 
 fun WeatherDb.toDomain() = Weather(main, description, icon)

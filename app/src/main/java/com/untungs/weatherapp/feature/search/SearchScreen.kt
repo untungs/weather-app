@@ -18,33 +18,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.untungs.weatherapp.R
-import com.untungs.weatherapp.data.CityLocation
+import com.untungs.weatherapp.common.LoadingUiState
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 
 @Composable
 fun SearchRoute(
-    onClickItem: (location: CityLocation) -> Unit,
+    onClickItem: (location: Location) -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.searchUiState.collectAsState()
+    val uiState by viewModel.loadingUiState.collectAsState()
     SearchScreen(uiState, onClickItem)
 }
 
 @Composable
-fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -> Unit) {
+fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location: Location) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (uiState) {
-            is SearchUiState.Loading -> {
+            is LoadingUiState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            is SearchUiState.Success -> {
+            is LoadingUiState.Success -> {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(uiState.cities) {
+                    items(uiState.data) {
                         SearchItem(it, onClickItem)
                     }
                 }
             }
-            is SearchUiState.Error -> {
+            is LoadingUiState.Error -> {
                 Text(
                     text = uiState.message,
                     textAlign = TextAlign.Center,
@@ -52,7 +53,7 @@ fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -
                         .padding(64.dp)
                 )
             }
-            is SearchUiState.Unknown -> {
+            is LoadingUiState.Unknown -> {
                 Text(
                     text = "Enter a city name",
                     textAlign = TextAlign.Center,
@@ -66,7 +67,7 @@ fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -
 }
 
 @Composable
-fun SearchItem(location: CityLocation, onClickItem: (location: CityLocation) -> Unit) {
+fun SearchItem(location: Location, onClickItem: (location: Location) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,7 +79,7 @@ fun SearchItem(location: CityLocation, onClickItem: (location: CityLocation) -> 
             contentDescription = ""
         )
         Text(
-            text = location.cityName,
+            text = location.name,
             modifier = Modifier
                 .padding(0.dp, 8.dp)
                 .align(Alignment.CenterVertically)
@@ -90,6 +91,6 @@ fun SearchItem(location: CityLocation, onClickItem: (location: CityLocation) -> 
 @Composable
 fun SearchPreview() {
     WeatherAppTheme {
-        SearchScreen(SearchUiState.Success(listOf(CityLocation("Yogyakarta", 0f, 0f)))) { }
+        SearchScreen(LoadingUiState.Success(listOf(Location("Yogyakarta", 0f, 0f)))) { }
     }
 }

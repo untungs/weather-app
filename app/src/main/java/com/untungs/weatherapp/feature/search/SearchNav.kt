@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.untungs.weatherapp.data.CityLocation
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.nav.AppDestination
 
 object SearchDestination : AppDestination {
@@ -15,7 +15,7 @@ object SearchDestination : AppDestination {
 }
 
 fun NavGraphBuilder.searchGraph(
-    onSearchItemClick: (location: CityLocation) -> Unit
+    onSearchItemClick: (location: Location) -> Unit
 ) {
     composable(
         route = SearchDestination.route,

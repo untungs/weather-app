@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
+import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.data.repository.CityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -17,17 +18,17 @@ class SearchViewModel @Inject constructor(
 
     private val searchKey: String = checkNotNull(savedStateHandle[SearchDestination.searchKey])
 
-    val searchUiState = flow {
+    val loadingUiState = flow {
         if (searchKey.isNotBlank()) {
-            emit(SearchUiState.Loading)
-            emit(SearchUiState.Success(cityRepository.getCities(searchKey)))
+            emit(LoadingUiState.Loading)
+            emit(LoadingUiState.Success(cityRepository.getCities(searchKey)))
         }
     }
-        .catch { emit(SearchUiState.Error(it.message ?: SOMETHING_WENT_WRONG)) }
+        .catch { emit(LoadingUiState.Error(it.message ?: SOMETHING_WENT_WRONG)) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = SearchUiState.Unknown
+            initialValue = LoadingUiState.Unknown
         )
 
 }

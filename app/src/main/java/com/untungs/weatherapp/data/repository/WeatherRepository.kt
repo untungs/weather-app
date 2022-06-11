@@ -23,7 +23,7 @@ class WeatherRepository @Inject constructor(
                         Weather(main, description, icon)
                     }
                     WeatherStat.CurrentWeatherStat(
-                        "Current", currentWeather, humidity, wind_speed, temp
+                        "Current", dt.times(1000), currentWeather, humidity, wind_speed, temp
                     )
                 }
                 val daily = it.daily.mapIndexed { index, daily ->
@@ -37,6 +37,7 @@ class WeatherRepository @Inject constructor(
                     }
                     WeatherStat.DailyWeatherStat(
                         day,
+                        daily.dt.times(1000),
                         dailyWeather,
                         daily.humidity,
                         daily.wind_speed,

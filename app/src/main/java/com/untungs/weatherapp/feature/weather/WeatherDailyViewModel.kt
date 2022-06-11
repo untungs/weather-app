@@ -3,7 +3,11 @@ package com.untungs.weatherapp.feature.weather
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.untungs.weatherapp.data.repository.CityRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
+import com.untungs.weatherapp.local.entity.CurrentWeatherDb
+import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
+import com.untungs.weatherapp.local.entity.WeatherDb
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -13,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherDailyViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val cityRepository: CityRepository
 ) : ViewModel() {
 
     private val city: String = checkNotNull(savedStateHandle[WeatherDailyDestination.city])
@@ -39,9 +44,26 @@ class WeatherDailyViewModel @Inject constructor(
             try {
                 val weatherDaily = weatherRepository.getWeatherDaily(lat, lon)
                 weatherUiState.update { it.copy(weatherDaily = weatherDaily, isLoading = false) }
+                addFavorite()
             } catch (error: IOException) {
                 weatherUiState.update { it.copy(errorMessage = error.message, isLoading = false) }
             }
+        }
+    }
+
+    fun addFavorite() {
+        viewModelScope.launch {
+            val currentWeatherDb = weatherUiState.value.weatherDaily?.current?.let {
+                CurrentWeatherDb(
+                    WeatherDb(it.weather.main, it.weather.description, it.weather.icon),
+                    it.humidity,
+                    it.windSpeed,
+                    it.temp,
+                    it.timestamp
+                )
+            }
+            val entity = FavoriteLocationEntity(lat, lon, city, currentWeatherDb)
+            cityRepository.addFavoriteLocation(entity)
         }
     }
 

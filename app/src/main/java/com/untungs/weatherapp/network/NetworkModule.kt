@@ -10,6 +10,6 @@ import dagger.hilt.components.SingletonComponent
 interface NetworkModule {
 
     @Binds
-    fun bindsNiaNetwork(retrofitNetwork: RetrofitNetwork): NetworkDataSource
+    fun bindsRetrofitNetwork(retrofitNetwork: RetrofitNetwork): NetworkDataSource
 
 }

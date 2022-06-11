@@ -177,12 +177,21 @@ fun WeatherCard(stat: WeatherStat) {
 @Composable
 fun WeatherCardPreview() {
     val weather = Weather("", "", "")
-    WeatherCard(WeatherStat.CurrentWeatherStat("Today", weather, 30.57f, 10.08f, 30f))
+    WeatherCard(WeatherStat.CurrentWeatherStat("Today", 0, weather, 30.57f, 10.08f, 30f))
 }
 
 @Preview
 @Composable
 fun WeatherCardDailyPreview() {
     val weather = Weather("", "", "")
-    WeatherCard(WeatherStat.DailyWeatherStat("Monday", weather, 30.57f, 10.08f, Temp(30.4f, 29.9f)))
+    WeatherCard(
+        WeatherStat.DailyWeatherStat(
+            "Monday",
+            0,
+            weather,
+            30.57f,
+            10.08f,
+            Temp(30.4f, 29.9f)
+        )
+    )
 }

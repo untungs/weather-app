@@ -52,14 +52,16 @@ class WeatherDailyViewModel @Inject constructor(
     }
 
     fun addFavorite() {
+        val currentWeather = weatherUiState.value.weatherDaily?.current ?: return
+
         viewModelScope.launch {
-            val currentWeatherDb = weatherUiState.value.weatherDaily?.current?.let {
+            val currentWeatherDb = with(currentWeather) {
                 CurrentWeatherDb(
-                    WeatherDb(it.weather.main, it.weather.description, it.weather.icon),
-                    it.humidity,
-                    it.windSpeed,
-                    it.temp,
-                    it.timestamp
+                    WeatherDb(weather.main, weather.description, weather.icon),
+                    humidity,
+                    windSpeed,
+                    temp,
+                    timestamp
                 )
             }
             val entity = FavoriteLocationEntity(lat, lon, city, currentWeatherDb)

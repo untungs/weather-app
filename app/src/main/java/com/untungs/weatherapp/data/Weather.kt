@@ -19,14 +19,14 @@ data class WeatherDailyStat(
 )
 
 sealed interface WeatherStat {
-    val day: String
+    val dayOrLocation: String
     val timestamp: Long
     val weather: Weather
     val humidity: Float
     val windSpeed: Float
 
     data class CurrentWeatherStat(
-        override val day: String,
+        override val dayOrLocation: String,
         override val timestamp: Long,
         override val weather: Weather,
         override val humidity: Float,
@@ -35,7 +35,7 @@ sealed interface WeatherStat {
     ) : WeatherStat
 
     data class DailyWeatherStat(
-        override val day: String,
+        override val dayOrLocation: String,
         override val timestamp: Long,
         override val weather: Weather,
         override val humidity: Float,
@@ -53,11 +53,4 @@ data class Weather(
 data class Temp(
     val day: Float,
     val night: Float
-)
-
-val FAKE_CITY = CityWeather(
-    City("Yogyakarta", "Special Region of Yogyakarta", "ID", -7.8012f, 110.364917f),
-    WeatherStat.CurrentWeatherStat(
-        "Today", 0, Weather("Clouds", "overcast clouds", "04n"), 24.5f, 88f, 1.68f
-    )
 )

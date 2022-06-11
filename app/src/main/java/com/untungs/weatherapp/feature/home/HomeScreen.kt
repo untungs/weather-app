@@ -1,60 +1,37 @@
 package com.untungs.weatherapp.feature.home
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.untungs.weatherapp.R
-import com.untungs.weatherapp.data.CityWeather
-import com.untungs.weatherapp.data.FAKE_CITY
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.untungs.weatherapp.common.WeatherCard
+import com.untungs.weatherapp.data.WeatherStat
 
 @Composable
-fun HomeScreen() {
-    Column() {
-        CityWeatherItem(cityWeather = FAKE_CITY)
+fun HomeRoute(viewModel: HomeViewModel = hiltViewModel()) {
+    val locations by viewModel.favoriteLocations.collectAsState()
+    HomeScreen(locations) {
+
     }
 }
 
 @Composable
-fun CityWeatherItem(cityWeather: CityWeather) {
-    Card(modifier = Modifier.padding(8.dp)) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { /* onClick */ }
-        ) {
-            Row(modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 8.dp)) {
-                Image(
-                    modifier = Modifier.size(48.dp),
-                    painter = painterResource(R.drawable.icon_02d),
-                    contentDescription = null
-                )
-                Text(
-                    modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp),
-                    text = with(cityWeather.city) { "$name, $state, $country" },
-                    style = MaterialTheme.typography.h6
-                )
-            }
-            Column(modifier = Modifier.padding(16.dp, 0.dp, 8.dp, 16.dp)) {
-                with(cityWeather.weatherStat) {
-                    Text(text = "Temperature: 30")
-                    Text(text = "Humidity: $humidity")
-                    Text(text = "Wind: $windSpeed")
-                }
+fun HomeScreen(
+    locations: List<WeatherStat.CurrentWeatherStat>,
+    onRefresh: () -> Unit
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(false),
+        onRefresh = onRefresh,
+    ) {
+        LazyColumn {
+            items(locations) {
+                WeatherCard(it)
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun CityWeatherItemPreview() {
-    CityWeatherItem(FAKE_CITY)
 }

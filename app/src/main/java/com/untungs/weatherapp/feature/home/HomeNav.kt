@@ -10,6 +10,6 @@ object HomeDestination : AppDestination {
 
 fun NavGraphBuilder.homeGraph() {
     composable(route = HomeDestination.route) {
-        HomeScreen()
+        HomeRoute()
     }
 }

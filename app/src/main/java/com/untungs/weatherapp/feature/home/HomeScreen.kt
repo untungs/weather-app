@@ -44,7 +44,7 @@ fun CityWeatherItem(cityWeather: CityWeather) {
             }
             Column(modifier = Modifier.padding(16.dp, 0.dp, 8.dp, 16.dp)) {
                 with(cityWeather.weatherStat) {
-                    Text(text = "Temperature: $temp")
+                    Text(text = "Temperature: 30")
                     Text(text = "Humidity: $humidity")
                     Text(text = "Wind: $windSpeed")
                 }

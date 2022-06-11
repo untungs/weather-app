@@ -1,13 +1,10 @@
 package com.untungs.weatherapp.feature.weather
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,11 +18,25 @@ import com.untungs.weatherapp.R
 import com.untungs.weatherapp.data.Temp
 import com.untungs.weatherapp.data.Weather
 import com.untungs.weatherapp.data.WeatherStat
-import com.untungs.weatherapp.network.model.Current
+import kotlinx.coroutines.launch
 
 @Composable
-fun WeatherDailyRoute(viewModel: WeatherDailyViewModel = hiltViewModel()) {
+fun WeatherDailyRoute(
+    snackbarHostState: SnackbarHostState,
+    viewModel: WeatherDailyViewModel = hiltViewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    uiState.errorMessage?.let {
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(message = it)
+            if (result == SnackbarResult.Dismissed) {
+                viewModel.onDismissError()
+            }
+        }
+    }
+
     WeatherDailyScreen(uiState = uiState, onRefresh = {
         viewModel.refreshWeather()
     })

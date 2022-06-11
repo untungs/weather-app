@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,7 +38,7 @@ fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             is SearchUiState.Success -> {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.cities) {
                         SearchItem(it, onClickItem)
                     }
@@ -45,14 +46,18 @@ fun SearchScreen(uiState: SearchUiState, onClickItem: (location: CityLocation) -
             }
             is SearchUiState.Error -> {
                 Text(
-                    text = "Something went wrong",
+                    text = uiState.message,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center)
+                        .padding(64.dp)
                 )
             }
             is SearchUiState.Unknown -> {
                 Text(
-                    text = "Search cities with the search bar above",
+                    text = "Enter a city name",
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center)
+                        .padding(64.dp)
                 )
             }
         }

@@ -3,6 +3,7 @@ package com.untungs.weatherapp.feature.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.data.repository.CityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,7 +23,7 @@ class SearchViewModel @Inject constructor(
             emit(SearchUiState.Success(cityRepository.getCities(searchKey)))
         }
     }
-        .catch { emit(SearchUiState.Error) }
+        .catch { emit(SearchUiState.Error(it.message ?: SOMETHING_WENT_WRONG)) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

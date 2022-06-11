@@ -3,7 +3,6 @@ package com.untungs.weatherapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -59,7 +58,10 @@ fun WeatherApp() {
             )
         }
 
+        val scaffoldState = rememberScaffoldState()
+
         Scaffold(
+            scaffoldState = scaffoldState,
             topBar = {
                 WeatherAppBar(appBarState)
             }
@@ -74,7 +76,7 @@ fun WeatherApp() {
                     navController.popBackStack(SearchDestination.route, true)
                     navController.navigateToWeatherDaily(it)
                 }
-                weatherGraph()
+                weatherGraph(scaffoldState.snackbarHostState)
             }
         }
     }

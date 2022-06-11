@@ -44,4 +44,10 @@ class WeatherDailyViewModel @Inject constructor(
             }
         }
     }
+
+    fun onDismissError() {
+        weatherUiState.update {
+            it.copy(errorMessage = null)
+        }
+    }
 }

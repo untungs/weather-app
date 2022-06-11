@@ -2,6 +2,8 @@ package com.untungs.weatherapp.network
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.untungs.weatherapp.BuildConfig
+import com.untungs.weatherapp.common.NO_CONNECTION
+import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.network.model.CityGeo
 import com.untungs.weatherapp.network.model.WeatherDaily
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -14,6 +16,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.io.IOException
+import java.lang.Exception
+import java.net.ConnectException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,6 +78,16 @@ class NetworkInterceptor : Interceptor {
             newBuilder().url(url).build()
         }
 
-        return chain.proceed(request)
+        val response = try {
+            chain.proceed(request)
+        } catch (error: Exception) {
+            throw when (error) {
+                is UnknownHostException, is ConnectException -> {
+                    IOException(NO_CONNECTION)
+                }
+                else -> IOException(SOMETHING_WENT_WRONG)
+            }
+        }
+        return response
     }
 }

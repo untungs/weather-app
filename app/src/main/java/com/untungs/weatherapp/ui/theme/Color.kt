@@ -8,6 +8,3 @@ val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 val Red40 = Color(0xFFBA1B1B)
 val Red80 = Color(0xFFFFB4A9)
-
-val Gray30 = Color(0xFF282828)
-val Gray50 = Color(0xFF484848)

@@ -111,12 +111,11 @@ fun SearchAppBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
-        color = MaterialTheme.colors.primary
+            .height(56.dp)
     ) {
         val customTextSelectionColors = TextSelectionColors(
-            handleColor = MaterialTheme.colors.onPrimary,
-            backgroundColor = MaterialTheme.colors.onPrimary.copy(alpha = 0.4f)
+            handleColor = MaterialTheme.colors.onSurface,
+            backgroundColor = MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
         )
 
         CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
@@ -135,7 +134,7 @@ fun SearchAppBar(
                 },
                 textStyle = TextStyle(
                     fontSize = MaterialTheme.typography.subtitle1.fontSize,
-                    color = MaterialTheme.colors.onPrimary
+                    color = MaterialTheme.colors.onSurface
                 ),
                 singleLine = true,
                 leadingIcon = {
@@ -174,11 +173,13 @@ fun SearchAppBar(
                     }
                 ),
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = MaterialTheme.colors.primary,
+                    backgroundColor = MaterialTheme.colors.primarySurface,
                     cursorColor = Color.White
                         .copy(alpha = ContentAlpha.medium),
-                    unfocusedIndicatorColor = MaterialTheme.colors.primary
-                )
+                    unfocusedIndicatorColor = MaterialTheme.colors.primarySurface,
+                    focusedIndicatorColor = MaterialTheme.colors.primarySurface
+                ),
+                shape = RectangleShape
             )
         }
     }

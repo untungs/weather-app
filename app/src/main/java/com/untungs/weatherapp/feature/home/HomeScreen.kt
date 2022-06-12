@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
 import com.untungs.weatherapp.data.Location
@@ -64,15 +65,7 @@ fun HomeScreen(
     onRefresh: () -> Unit
 ) {
     if (locations.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Your favorite locations will be shown here",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(48.dp),
-                textAlign = TextAlign.Center
-            )
-        }
+        EmptyScreen(text = "Your favorite locations will be shown here")
     } else {
         SwipeRefresh(
             state = rememberSwipeRefreshState(uiState is LoadingUiState.Loading),

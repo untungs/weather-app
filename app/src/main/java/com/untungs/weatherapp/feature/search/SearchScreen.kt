@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.untungs.weatherapp.R
+import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
@@ -39,9 +41,13 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             is LoadingUiState.Success -> {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(uiState.data) {
-                        SearchItem(it, onClickItem)
+                if (uiState.data.isEmpty()) {
+                    EmptyScreen(text = "Location not found")
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(uiState.data) {
+                            SearchItem(it, onClickItem)
+                        }
                     }
                 }
             }
@@ -49,7 +55,8 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
                 Text(
                     text = uiState.message,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier
+                        .align(Alignment.Center)
                         .padding(48.dp)
                 )
             }
@@ -57,7 +64,8 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
                 Text(
                     text = "Enter a city name",
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier
+                        .align(Alignment.Center)
                         .padding(48.dp)
                 )
             }
@@ -68,22 +76,17 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
 
 @Composable
 fun SearchItem(location: Location, onClickItem: (location: Location) -> Unit) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClickItem(location) }
     ) {
-        Icon(
-            modifier = Modifier.padding(8.dp),
-            painter = painterResource(id = R.drawable.icon_02d),
-            contentDescription = ""
-        )
         Text(
             text = location.name,
             modifier = Modifier
-                .padding(0.dp, 8.dp)
-                .align(Alignment.CenterVertically)
+                .padding(12.dp)
         )
+        Divider()
     }
 }
 

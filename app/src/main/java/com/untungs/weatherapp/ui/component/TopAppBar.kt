@@ -100,7 +100,7 @@ fun SearchAppBar(
     onSearchClicked: (String) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
-    val focusRequester = remember {FocusRequester()}
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         this.coroutineContext.job.invokeOnCompletion {
@@ -129,7 +129,7 @@ fun SearchAppBar(
                     Text(
                         modifier = Modifier
                             .alpha(ContentAlpha.medium),
-                        text = "Search city here",
+                        text = "Search",
                         color = Color.White
                     )
                 },
@@ -153,7 +153,9 @@ fun SearchAppBar(
                 },
                 trailingIcon = {
                     IconButton(
-                        onClick = onCloseClicked,
+                        onClick = {
+                            if (text.isNotBlank()) text = "" else onCloseClicked()
+                        },
                         modifier = Modifier.padding(end = 4.dp)
                     ) {
                         Icon(

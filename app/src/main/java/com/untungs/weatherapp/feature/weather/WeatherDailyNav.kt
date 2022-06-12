@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.nav.AppDestination
+import com.untungs.weatherapp.ui.component.AppBarState
 
 object WeatherDailyDestination : AppDestination {
     val path: String = "weather_daily"
@@ -17,7 +18,10 @@ object WeatherDailyDestination : AppDestination {
     override val route: String = "$path?city={$city}&lat={$lat}&lon={$lon}"
 }
 
-fun NavGraphBuilder.weatherGraph(snackbarHostState: SnackbarHostState) {
+fun NavGraphBuilder.weatherGraph(
+    appBarState: AppBarState,
+    snackbarHostState: SnackbarHostState
+) {
     composable(
         route = WeatherDailyDestination.route,
         arguments = listOf(
@@ -32,7 +36,7 @@ fun NavGraphBuilder.weatherGraph(snackbarHostState: SnackbarHostState) {
             }
         )
     ) {
-        WeatherDailyRoute(snackbarHostState)
+        WeatherDailyRoute(appBarState, snackbarHostState)
     }
 }
 

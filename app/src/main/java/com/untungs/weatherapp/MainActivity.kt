@@ -39,31 +39,29 @@ fun WeatherApp() {
         val navController = rememberNavController()
         val currentBackstack by navController.currentBackStackEntryAsState()
         val route = currentBackstack?.destination?.route
-        val appBarState = if (route == SearchDestination.route) {
-            AppBarState.Search(
-                onCloseClicked = navController::popBackStack,
-                onSearchClicked = navController::navigateToSearch
-            )
-        } else {
-            val title = when (route) {
+
+        val appBarState = AppBarState(
+            title = when (route) {
                 WeatherDailyDestination.route -> currentBackstack?.arguments
                     ?.getString(WeatherDailyDestination.city).orEmpty()
                 else -> stringResource(id = R.string.app_name)
-            }
-            AppBarState.Default(
-                title = title,
-                hasBackStack = route != HomeDestination.route,
-                onBackClicked = navController::navigateUp,
-                onSearchTriggered = navController::navigateToSearch
-            )
-        }
+            },
+            hasBackStack = route != HomeDestination.route,
+            openSearch = route == SearchDestination.route
+        )
 
         val scaffoldState = rememberScaffoldState()
 
         Scaffold(
             scaffoldState = scaffoldState,
             topBar = {
-                WeatherAppBar(appBarState)
+                WeatherAppBar(
+                    state = appBarState,
+                    onBackClicked = navController::navigateUp,
+                    onSearchOpened = navController::navigateToSearch,
+                    onSearchClosed = navController::popBackStack,
+                    onSearchTriggered = navController::navigateToSearch
+                )
             }
         ) { innerPadding ->
             NavHost(
@@ -78,7 +76,7 @@ fun WeatherApp() {
                     navController.popBackStack(SearchDestination.route, true)
                     navController.navigateToWeatherDaily(it)
                 }
-                weatherGraph(scaffoldState.snackbarHostState)
+                weatherGraph(appBarState, scaffoldState.snackbarHostState)
             }
         }
     }

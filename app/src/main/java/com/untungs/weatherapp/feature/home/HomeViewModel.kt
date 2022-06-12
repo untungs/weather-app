@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
+import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.data.LocationWithCurrentWeather
 import com.untungs.weatherapp.data.repository.CityRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
@@ -57,6 +58,12 @@ class HomeViewModel @Inject constructor(
         loadingUiState.update {
             errors.firstOrNull()?.let { LoadingUiState.Error(it.message ?: SOMETHING_WENT_WRONG) }
                 ?: LoadingUiState.Success(Unit)
+        }
+    }
+
+    fun removeFavorite(location: Location) {
+        viewModelScope.launch {
+            cityRepository.removeFavoriteLocation(location.lat, location.lon)
         }
     }
 

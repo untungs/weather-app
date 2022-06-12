@@ -5,9 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.untungs.weatherapp.data.repository.CityRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
-import com.untungs.weatherapp.local.entity.CurrentWeatherDb
-import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
-import com.untungs.weatherapp.local.entity.WeatherDb
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -28,6 +25,9 @@ class WeatherDailyViewModel @Inject constructor(
     private val weatherUiState = MutableStateFlow(WeatherUiState(city))
 
     val uiState = weatherUiState
+        .combine(cityRepository.getFavoriteLocation(lat, lon)) { uiState, location ->
+            uiState.copy(isFavorite = location != null)
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -44,7 +44,6 @@ class WeatherDailyViewModel @Inject constructor(
             try {
                 val weatherDaily = weatherRepository.getWeatherDaily(lat, lon)
                 weatherUiState.update { it.copy(weatherDaily = weatherDaily, isLoading = false) }
-                addFavorite()
             } catch (error: IOException) {
                 weatherUiState.update { it.copy(errorMessage = error.message, isLoading = false) }
             }
@@ -55,18 +54,20 @@ class WeatherDailyViewModel @Inject constructor(
         val currentWeather = weatherUiState.value.weatherDaily?.current ?: return
 
         viewModelScope.launch {
-            val currentWeatherDb = with(currentWeather) {
-                CurrentWeatherDb(
-                    WeatherDb(weather.main, weather.description, weather.icon),
-                    humidity,
-                    windSpeed,
-                    temp,
-                    timestamp
-                )
-            }
-            val entity = FavoriteLocationEntity(lat, lon, city, currentWeatherDb)
-            cityRepository.addFavoriteLocation(entity)
+            cityRepository.addFavoriteLocation(lat, lon, city, currentWeather)
         }
+        weatherUiState.update { it.copy(favoriteChanged = true) }
+    }
+
+    fun removeFavorite() {
+        viewModelScope.launch {
+            cityRepository.removeFavoriteLocation(lat, lon)
+        }
+        weatherUiState.update { it.copy(favoriteChanged = false) }
+    }
+
+    fun onFavoriteChangeConsumed() {
+        weatherUiState.update { it.copy(favoriteChanged = null) }
     }
 
     fun onDismissError() {

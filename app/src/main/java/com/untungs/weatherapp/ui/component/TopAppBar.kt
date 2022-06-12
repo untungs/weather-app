@@ -2,6 +2,7 @@ package com.untungs.weatherapp.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -13,43 +14,46 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.untungs.weatherapp.R
+import com.untungs.weatherapp.common.Function
 
-sealed interface AppBarState {
-    data class Default(
-        val title: String,
-        val hasBackStack: Boolean,
-        val onBackClicked: () -> Unit,
-        val onSearchTriggered: () -> Unit
-    ) : AppBarState
-
-    data class Search(
-        val onCloseClicked: () -> Unit,
-        val onSearchClicked: (String) -> Unit
-    ) : AppBarState
+class AppBarState(
+    val title: String,
+    val hasBackStack: Boolean,
+    val openSearch: Boolean
+) {
+    var action by mutableStateOf<Pair<ImageVector, Function>?>(null)
 }
 
 @Composable
-fun WeatherAppBar(state: AppBarState) {
-    when (state) {
-        is AppBarState.Default -> DefaultAppBar(state)
-        is AppBarState.Search -> SearchAppBar(state)
+fun WeatherAppBar(
+    state: AppBarState,
+    onBackClicked: Function,
+    onSearchOpened: Function,
+    onSearchClosed: Function,
+    onSearchTriggered: (String) -> Unit
+) {
+    if (state.openSearch) {
+        SearchAppBar(onSearchClosed, onSearchTriggered)
+    } else {
+        DefaultAppBar(state, onBackClicked, onSearchOpened)
     }
 }
 
 @Composable
-fun DefaultAppBar(state: AppBarState.Default) {
+fun DefaultAppBar(
+    state: AppBarState,
+    onBackClicked: Function,
+    onSearchOpened: Function
+) {
     TopAppBar(
         title = { Text(text = state.title) },
         navigationIcon = if (state.hasBackStack) {
             {
-                IconButton(onClick = state.onBackClicked) {
+                IconButton(onClick = onBackClicked) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back"
@@ -60,8 +64,19 @@ fun DefaultAppBar(state: AppBarState.Default) {
             null
         },
         actions = {
+            state.action?.let {
+                IconButton(
+                    onClick = it.second
+                ) {
+                    Icon(
+                        imageVector = it.first,
+                        contentDescription = "Action",
+                        tint = Color.White
+                    )
+                }
+            }
             IconButton(
-                onClick = state.onSearchTriggered
+                onClick = onSearchOpened
             ) {
                 Icon(
                     imageVector = Icons.Filled.Search,
@@ -74,7 +89,10 @@ fun DefaultAppBar(state: AppBarState.Default) {
 }
 
 @Composable
-fun SearchAppBar(state: AppBarState.Search) {
+fun SearchAppBar(
+    onCloseClicked: () -> Unit,
+    onSearchClicked: (String) -> Unit
+) {
     var text by remember { mutableStateOf("") }
 
     Surface(
@@ -84,7 +102,8 @@ fun SearchAppBar(state: AppBarState.Search) {
         color = MaterialTheme.colors.primary
     ) {
         TextField(modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(end = 4.dp),
             value = text,
             onValueChange = { text = it },
             placeholder = {
@@ -114,7 +133,7 @@ fun SearchAppBar(state: AppBarState.Search) {
             },
             trailingIcon = {
                 IconButton(
-                    onClick = state.onCloseClicked
+                    onClick = onCloseClicked
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -128,7 +147,7 @@ fun SearchAppBar(state: AppBarState.Search) {
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    state.onSearchClicked(text)
+                    onSearchClicked(text)
                 }
             ),
             colors = TextFieldDefaults.textFieldColors(
@@ -137,22 +156,22 @@ fun SearchAppBar(state: AppBarState.Search) {
             ))
     }
 }
-
-@Preview
-@Composable
-fun DefaultAppBarPreview() {
-    DefaultAppBar(
-        AppBarState.Default(
-            title = stringResource(id = R.string.app_name),
-            hasBackStack = true,
-            onBackClicked = {},
-            onSearchTriggered = {}
-        )
-    )
-}
-
-@Preview
-@Composable
-fun SearchAppBarPreview() {
-    SearchAppBar(AppBarState.Search(onCloseClicked = {}, onSearchClicked = {}))
-}
+//
+//@Preview
+//@Composable
+//fun DefaultAppBarPreview() {
+//    DefaultAppBar(
+//        AppBarState.Default(
+//            title = stringResource(id = R.string.app_name),
+//            hasBackStack = true,
+//            onBackClicked = {},
+//            onSearchTriggered = {}
+//        )
+//    )
+//}
+//
+//@Preview
+//@Composable
+//fun SearchAppBarPreview() {
+//    SearchAppBar(AppBarState.Search(onCloseClicked = {}, onSearchClicked = {}))
+//}

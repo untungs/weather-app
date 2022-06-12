@@ -50,7 +50,7 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
                     text = uiState.message,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center)
-                        .padding(64.dp)
+                        .padding(48.dp)
                 )
             }
             is LoadingUiState.Unknown -> {
@@ -58,7 +58,7 @@ fun SearchScreen(uiState: LoadingUiState<List<Location>>, onClickItem: (location
                     text = "Enter a city name",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center)
-                        .padding(64.dp)
+                        .padding(48.dp)
                 )
             }
         }

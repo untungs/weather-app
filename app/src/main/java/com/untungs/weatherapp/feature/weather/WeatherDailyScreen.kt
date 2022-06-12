@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
 import com.untungs.weatherapp.ui.component.AppBarState
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ fun WeatherDailyRoute(
     viewModel: WeatherDailyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val loadingState by viewModel.loadingState.collectAsState()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(appBarState, uiState.isFavorite) {
@@ -39,31 +41,41 @@ fun WeatherDailyRoute(
     uiState.favoriteChanged?.let { isFavorite ->
         val message = if (isFavorite) "Added to Favorite" else "Removed from Favorite"
         Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
+
+        viewModel.onFavoriteChangeConsumed()
     }
 
-    uiState.errorMessage?.let {
+    val message = loadingState.let {
+        when (it) {
+            is LoadingUiState.Success -> "Daily weather forecast updated"
+            is LoadingUiState.Error -> it.message
+            else -> null
+        }
+    }
+    message?.let {
         LaunchedEffect(snackbarHostState) {
             scope.launch {
-                val result = snackbarHostState.showSnackbar(message = it)
-                if (result == SnackbarResult.Dismissed) {
-                    viewModel.onDismissError()
-                }
+                snackbarHostState.showSnackbar(message = it)
+                viewModel.onDismissSnackbar()
             }
         }
     }
 
-    WeatherDailyScreen(uiState = uiState, onRefresh = {
-        viewModel.refreshWeather()
-    })
+    WeatherDailyScreen(
+        uiState = uiState,
+        isRefreshing = loadingState == LoadingUiState.Loading,
+        onRefresh = viewModel::refreshWeather
+    )
 }
 
 @Composable
 fun WeatherDailyScreen(
     uiState: WeatherUiState,
+    isRefreshing: Boolean,
     onRefresh: () -> Unit
 ) {
     SwipeRefresh(
-        state = rememberSwipeRefreshState(uiState.isLoading),
+        state = rememberSwipeRefreshState(isRefreshing),
         onRefresh = onRefresh,
     ) {
         LazyColumn {

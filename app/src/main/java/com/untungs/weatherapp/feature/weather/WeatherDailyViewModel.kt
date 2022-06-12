@@ -3,6 +3,8 @@ package com.untungs.weatherapp.feature.weather
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.untungs.weatherapp.common.LoadingUiState
+import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.data.repository.LocationRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +25,7 @@ class WeatherDailyViewModel @Inject constructor(
     private val lon: Float = checkNotNull(savedStateHandle[WeatherDailyDestination.lon])
 
     private val weatherUiState = MutableStateFlow(WeatherUiState(city))
+    private val loadingUiState = MutableStateFlow<LoadingUiState<Unit>>(LoadingUiState.Unknown)
 
     val uiState = weatherUiState
         .combine(locationRepository.getFavoriteLocation(lat, lon)) { uiState, location ->
@@ -34,18 +37,32 @@ class WeatherDailyViewModel @Inject constructor(
             initialValue = weatherUiState.value
         )
 
+    val loadingState = loadingUiState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000, 0),
+            initialValue = loadingUiState.value
+        )
+
     init {
-        refreshWeather()
+        refreshWeather(fromUser = false)
     }
 
-    fun refreshWeather() {
-        weatherUiState.update { it.copy(isLoading = true) }
+    fun refreshWeather(fromUser: Boolean = true) {
+        if (fromUser) {
+            loadingUiState.update { LoadingUiState.Loading }
+        }
+
         viewModelScope.launch {
             try {
                 val weatherDaily = weatherRepository.getWeatherDaily(lat, lon)
-                weatherUiState.update { it.copy(weatherDaily = weatherDaily, isLoading = false) }
+                weatherUiState.update { it.copy(weatherDaily = weatherDaily) }
+
+                if (fromUser) {
+                    loadingUiState.update { LoadingUiState.Success(Unit) }
+                }
             } catch (error: IOException) {
-                weatherUiState.update { it.copy(errorMessage = error.message, isLoading = false) }
+                loadingUiState.update { LoadingUiState.Error(error.message ?: SOMETHING_WENT_WRONG) }
             }
         }
     }
@@ -70,9 +87,9 @@ class WeatherDailyViewModel @Inject constructor(
         weatherUiState.update { it.copy(favoriteChanged = null) }
     }
 
-    fun onDismissError() {
-        weatherUiState.update {
-            it.copy(errorMessage = null)
+    fun onDismissSnackbar() {
+        loadingUiState.update {
+            LoadingUiState.Unknown
         }
     }
 }

@@ -134,7 +134,7 @@ fun SearchAppBar(
                 },
                 textStyle = TextStyle(
                     fontSize = MaterialTheme.typography.subtitle1.fontSize,
-                    color = MaterialTheme.colors.onSurface
+                    color = MaterialTheme.colors.onPrimary
                 ),
                 singleLine = true,
                 leadingIcon = {

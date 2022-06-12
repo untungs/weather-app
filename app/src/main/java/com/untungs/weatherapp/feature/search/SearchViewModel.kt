@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.common.LoadingUiState
-import com.untungs.weatherapp.data.repository.CityRepository
+import com.untungs.weatherapp.data.repository.AppLocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val cityRepository: CityRepository
+    private val cityRepository: AppLocationRepository
 ) : ViewModel() {
 
     private val searchKey: String = checkNotNull(savedStateHandle[SearchDestination.searchKey])

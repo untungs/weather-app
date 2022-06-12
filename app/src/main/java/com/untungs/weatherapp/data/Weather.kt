@@ -1,5 +1,9 @@
 package com.untungs.weatherapp.data
 
+import com.untungs.weatherapp.local.entity.CurrentWeatherDb
+import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
+import com.untungs.weatherapp.local.entity.WeatherDb
+
 data class CityWeather(
     val city: City,
     val weatherStat: WeatherStat
@@ -53,4 +57,12 @@ data class Weather(
 data class Temp(
     val day: Float,
     val night: Float
+)
+
+fun WeatherStat.CurrentWeatherStat.toDb() = CurrentWeatherDb(
+    WeatherDb(weather.main, weather.description, weather.icon),
+    humidity,
+    windSpeed,
+    temp,
+    timestamp
 )

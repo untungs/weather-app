@@ -6,7 +6,7 @@ import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.data.LocationWithCurrentWeather
-import com.untungs.weatherapp.data.repository.CityRepository
+import com.untungs.weatherapp.data.repository.LocationRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
 import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
 import com.untungs.weatherapp.local.entity.toDomain
@@ -18,12 +18,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val cityRepository: CityRepository,
+    private val locationRepository: LocationRepository,
     private val weatherRepository: WeatherRepository
 ) : ViewModel() {
 
     val favoriteLocations: StateFlow<List<LocationWithCurrentWeather>> =
-        cityRepository.favoriteLocations.map { list ->
+        locationRepository.favoriteLocations.map { list ->
             list.map(FavoriteLocationEntity::toDomain)
         }
             .stateIn(
@@ -63,7 +63,7 @@ class HomeViewModel @Inject constructor(
 
     fun removeFavorite(location: Location) {
         viewModelScope.launch {
-            cityRepository.removeFavoriteLocation(location.lat, location.lon)
+            locationRepository.removeFavoriteLocation(location.lat, location.lon)
         }
     }
 

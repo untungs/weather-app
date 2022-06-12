@@ -3,7 +3,7 @@ package com.untungs.weatherapp.feature.weather
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.untungs.weatherapp.data.repository.CityRepository
+import com.untungs.weatherapp.data.repository.LocationRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class WeatherDailyViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val weatherRepository: WeatherRepository,
-    private val cityRepository: CityRepository
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val city: String = checkNotNull(savedStateHandle[WeatherDailyDestination.city])
@@ -25,7 +25,7 @@ class WeatherDailyViewModel @Inject constructor(
     private val weatherUiState = MutableStateFlow(WeatherUiState(city))
 
     val uiState = weatherUiState
-        .combine(cityRepository.getFavoriteLocation(lat, lon)) { uiState, location ->
+        .combine(locationRepository.getFavoriteLocation(lat, lon)) { uiState, location ->
             uiState.copy(isFavorite = location != null)
         }
         .stateIn(
@@ -54,14 +54,14 @@ class WeatherDailyViewModel @Inject constructor(
         val currentWeather = weatherUiState.value.weatherDaily?.current ?: return
 
         viewModelScope.launch {
-            cityRepository.addFavoriteLocation(lat, lon, city, currentWeather)
+            locationRepository.addFavoriteLocation(lat, lon, city, currentWeather)
         }
         weatherUiState.update { it.copy(favoriteChanged = true) }
     }
 
     fun removeFavorite() {
         viewModelScope.launch {
-            cityRepository.removeFavoriteLocation(lat, lon)
+            locationRepository.removeFavoriteLocation(lat, lon)
         }
         weatherUiState.update { it.copy(favoriteChanged = false) }
     }

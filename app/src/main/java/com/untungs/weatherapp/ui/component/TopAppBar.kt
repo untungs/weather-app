@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,12 +15,16 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.untungs.weatherapp.common.Function
+import kotlinx.coroutines.job
 
 class AppBarState(
     val title: String,
@@ -94,6 +100,13 @@ fun SearchAppBar(
     onSearchClicked: (String) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
+    val focusRequester = remember {FocusRequester()}
+
+    LaunchedEffect(Unit) {
+        this.coroutineContext.job.invokeOnCompletion {
+            focusRequester.requestFocus()
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -101,59 +114,71 @@ fun SearchAppBar(
             .height(56.dp),
         color = MaterialTheme.colors.primary
     ) {
-        TextField(modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 4.dp),
-            value = text,
-            onValueChange = { text = it },
-            placeholder = {
-                Text(
-                    modifier = Modifier
-                        .alpha(ContentAlpha.medium),
-                    text = "Search city here",
-                    color = Color.White
+        val customTextSelectionColors = TextSelectionColors(
+            handleColor = MaterialTheme.colors.onPrimary,
+            backgroundColor = MaterialTheme.colors.onPrimary.copy(alpha = 0.4f)
+        )
+
+        CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
+            TextField(modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+                value = text,
+                onValueChange = { text = it },
+                placeholder = {
+                    Text(
+                        modifier = Modifier
+                            .alpha(ContentAlpha.medium),
+                        text = "Search city here",
+                        color = Color.White
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = MaterialTheme.typography.subtitle1.fontSize,
+                    color = MaterialTheme.colors.onPrimary
+                ),
+                singleLine = true,
+                leadingIcon = {
+                    IconButton(
+                        modifier = Modifier
+                            .alpha(ContentAlpha.medium),
+                        onClick = { onSearchClicked(text) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = Color.White
+                        )
+                    }
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = onCloseClicked,
+                        modifier = Modifier.padding(end = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close Icon",
+                            tint = Color.White
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        onSearchClicked(text)
+                    }
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = MaterialTheme.colors.primary,
+                    cursorColor = Color.White
+                        .copy(alpha = ContentAlpha.medium),
+                    unfocusedIndicatorColor = MaterialTheme.colors.primary
                 )
-            },
-            textStyle = TextStyle(
-                fontSize = MaterialTheme.typography.subtitle1.fontSize
-            ),
-            singleLine = true,
-            leadingIcon = {
-                IconButton(
-                    modifier = Modifier
-                        .alpha(ContentAlpha.medium),
-                    onClick = {}
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.White
-                    )
-                }
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = onCloseClicked
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close Icon",
-                        tint = Color.White
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    onSearchClicked(text)
-                }
-            ),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
-                cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
-            ))
+            )
+        }
     }
 }
 //

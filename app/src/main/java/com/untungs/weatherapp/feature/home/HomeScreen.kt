@@ -7,9 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -42,10 +40,8 @@ fun HomeRoute(
     if (message != null) {
         LaunchedEffect(snackbarHostState, message) {
             scope.launch {
-                val result = snackbarHostState.showSnackbar(message)
-                if (result == SnackbarResult.Dismissed) {
-                    viewModel.onDismissError()
-                }
+                viewModel.onLoadingStateConsumed()
+                snackbarHostState.showSnackbar(message)
             }
         }
     }

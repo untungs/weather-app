@@ -67,7 +67,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onDismissError() {
+    fun onLoadingStateConsumed() {
         loadingUiState.update { LoadingUiState.Unknown }
     }
 }

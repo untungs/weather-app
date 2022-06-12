@@ -55,8 +55,8 @@ fun WeatherDailyRoute(
     message?.let {
         LaunchedEffect(snackbarHostState) {
             scope.launch {
+                viewModel.onLoadingStateConsumed()
                 snackbarHostState.showSnackbar(message = it)
-                viewModel.onDismissSnackbar()
             }
         }
     }

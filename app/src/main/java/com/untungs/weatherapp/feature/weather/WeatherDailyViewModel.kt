@@ -87,7 +87,7 @@ class WeatherDailyViewModel @Inject constructor(
         weatherUiState.update { it.copy(favoriteChanged = null) }
     }
 
-    fun onDismissSnackbar() {
+    fun onLoadingStateConsumed() {
         loadingUiState.update {
             LoadingUiState.Unknown
         }

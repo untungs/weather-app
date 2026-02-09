@@ -18,12 +18,21 @@ java -version
 
 ---
 
-## Step 0: Update Gradle Wrapper
+## Step 0: Gradle + AGP Updates
 
-**Priority:** Critical - Required for AGP 8.x
-**Risk:** Low
+**Priority:** Critical - Required for all other updates
+
+**Risk:** High - Foundation changes with breaking updates
+
+**Changes Applied:**
+- Gradle: 7.2 → 8.7
+- AGP: 7.1.0 → 8.5.0
+- Added namespace declaration
+- Added buildConfig feature flag
 
 ### Changes
+
+**`gradle/wrapper/gradle-wrapper.properties`:**
 
 Update Gradle from 7.2 to 8.7:
 
@@ -31,43 +40,104 @@ Update Gradle from 7.2 to 8.7:
 ./gradlew wrapper --gradle-version 8.7
 ```
 
+**`build.gradle` (project level):**
+
+```groovy
+plugins {
+    id 'com.android.application' version '8.5.0' apply false
+    id 'com.android.library' version '8.5.0' apply false
+    // Kotlin remains at 1.6.10 for now (updated in Step 1)
+    id 'org.jetbrains.kotlin.android' version "1.6.10" apply false
+}
+```
+
+**`app/build.gradle`:**
+
+```groovy
+android {
+    namespace 'com.untungs.weatherapp'
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        applicationId "com.untungs.weatherapp"
+        minSdk 21
+        targetSdk 32  // Will update to 34 in Step 1
+        versionCode 1
+        versionName "1.0"
+        // ... rest unchanged
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    // Update deprecated packaging
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+```
+
 ### Verify
 
 ```bash
 ./gradlew --version
 # Should show: Gradle 8.7
-```
 
-### Build Test
-
-```bash
-./gradlew assembleDebug --info 2>&1 | tail -20
+./gradlew clean assembleDebug
+# Project should compile successfully
 ```
 
 ### Expected Outcome
 - Gradle 8.7 installed
-- Project still builds with AGP 7.1.0
+- AGP 8.5.0 configured
+- Namespace declared (resolves AGP 8.0+ requirement)
+- BuildConfig generation enabled
+- Project compiles with Java 17
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| `IncrementalTaskInputs` error | Ensure AGP 8.5.0 is used with Gradle 8.7 |
+| `Namespace not specified` | Add `namespace` to app/build.gradle |
+| `BuildConfig fields disabled` | Add `android.buildFeatures.buildConfig true` |
+| `Java version mismatch` | Verify `JAVA_HOME` points to JDK 17 |
 
 ### Commit
 
 ```
-chore: update gradle wrapper to 8.7
+refactor: update Gradle to 8.7 and AGP to 8.5.0
 
-Gradle 8.7 is required for AGP 8.x compatibility.
+- Gradle 7.2 → 8.7
+- AGP 7.1.0 → 8.5.0
+- Added namespace declaration
+- Enabled BuildConfig feature
+- Configured Java 17 target
 ```
 
 ---
 
-## Step 1: Core Build Tools (AGP + Kotlin)
+## Step 1: Kotlin + SDK Updates
 
-**Priority:** Critical - Foundation for all other updates
-**Risk:** High - Many breaking changes
+**Priority:** Critical - Kotlin and SDK foundation
+
+**Risk:** High - Kotlin version bump
+
 **Dependencies Updated:**
-- AGP: 7.1.0 → 8.5.0
 - Kotlin: 1.6.10 → 1.9.24
 - compileSdk: 32 → 34
 - targetSdk: 32 → 34
-- Java target: 1.8 → 17
 
 ### Changes
 
@@ -90,8 +160,8 @@ buildscript {
 }
 
 plugins {
-    id 'com.android.application' version '8.5.0' apply false
-    id 'com.android.library' version '8.5.0' apply false
+    id 'com.android.application' version '8.5.0' apply false  // Already updated in Step 0
+    id 'com.android.library' version '8.5.0' apply false  // Already updated in Step 0
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
 }
 ```
@@ -101,7 +171,7 @@ plugins {
 ```groovy
 android {
     compileSdk 34
-    namespace 'com.untungs.weatherapp'
+    namespace 'com.untungs.weatherapp'  // Already added in Step 0
 
     defaultConfig {
         applicationId "com.untungs.weatherapp"
@@ -116,15 +186,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    
+
     kotlinOptions {
         jvmTarget = '17'
     }
-    
+
     composeOptions {
         kotlinCompilerExtensionVersion '1.1.1'  // Keep unchanged for now
     }
-    
+
+    buildFeatures {
+        buildConfig true  // Already added in Step 0
+    }
+
     // Update deprecated packaging
     packaging {
         resources {
@@ -141,28 +215,25 @@ android {
 ```
 
 ### Expected Outcome
-- Project compiles successfully
-- No namespace conflicts
+- Project compiles successfully with Kotlin 1.9.24
+- SDK 34 targets work correctly
 - Java 17 compatibility confirmed
 
 ### Common Issues
 
 | Issue | Solution |
 |-------|----------|
-| `Package not found` | Ensure `namespace` is set in build.gradle |
 | `Java version mismatch` | Verify `JAVA_HOME` points to JDK 17 |
 | `Kotlin plugin error` | Ensure `kotlin_version` is correctly set |
 
 ### Commit
 
 ```
-refactor: update AGP to 8.5.0 and Kotlin to 1.9.24
+refactor: update Kotlin to 1.9.24 and SDK to 34
 
-- AGP 7.1.0 → 8.5.0
 - Kotlin 1.6.10 → 1.9.24
-- compileSdk/targetSdk: 32 → 34
-- Java target: 1.8 → 17
-- Added namespace declaration
+- compileSdk: 32 → 34
+- targetSdk: 32 → 34
 ```
 
 ---
@@ -170,7 +241,9 @@ refactor: update AGP to 8.5.0 and Kotlin to 1.9.24
 ## Step 2: AndroidX Core Updates
 
 **Priority:** High - Required for Compose compatibility
+
 **Risk:** Medium
+
 **Dependencies Updated:**
 - Core KTX: 1.8.0 → 1.13.1
 - Activity Compose: 1.4.0 → 1.9.0
@@ -211,7 +284,9 @@ chore: update AndroidX core dependencies
 ## Step 3: Lifecycle + ViewModel
 
 **Priority:** High - Compose ViewModel integration
+
 **Risk:** Medium
+
 **Dependencies Updated:**
 - Lifecycle Runtime KTX: 2.4.1 → 2.8.0
 - Lifecycle ViewModel Compose: 2.4.1 → 2.8.0
@@ -255,7 +330,9 @@ chore: update lifecycle dependencies to 2.8.0
 ## Step 4: Jetpack Compose (Major Version Bump)
 
 **Priority:** Critical - Largest impact on UI code
+
 **Risk:** High - Breaking changes in Compose APIs
+
 **Dependencies Updated:**
 - Compose: 1.1.1 → 1.6.10
 - Compose Compiler: 1.1.1 → 1.6.0
@@ -345,7 +422,9 @@ feat: update compose to 1.6.10
 ## Step 5: Compose Navigation
 
 **Priority:** High - Navigation integration with Compose
+
 **Risk:** Medium
+
 **Dependencies Updated:**
 - Navigation Compose: 2.5.0-rc01 → 2.7.7
 - Hilt Navigation Compose: 1.0.0 → 1.2.0
@@ -386,7 +465,9 @@ chore: update navigation and hilt-navigation-compose
 ## Step 6: Hilt (Dependency Injection)
 
 **Priority:** High - Core DI framework
+
 **Risk:** Medium
+
 **Dependencies Updated:**
 - Hilt: 2.41 → 2.51.1
 
@@ -424,7 +505,9 @@ chore: update hilt to 2.51.1
 ## Step 7: Room (Database)
 
 **Priority:** High - Local data persistence
+
 **Risk:** Medium
+
 **Dependencies Updated:**
 - Room: 2.4.2 → 2.6.1
 
@@ -462,7 +545,9 @@ chore: update room to 2.6.1
 ## Step 8: Networking Stack
 
 **Priority:** Medium - API communication
+
 **Risk:** Low - Retrofit/OkHttp have good backwards compatibility
+
 **Dependencies Updated:**
 - Retrofit: 2.9.0 → 2.11.0
 - OkHttp Logging: 4.9.3 → 4.12.0
@@ -517,7 +602,9 @@ chore: update networking dependencies
 ## Step 9: UI Utilities (Coil + Accompanist)
 
 **Priority:** Medium - Image loading and UI helpers
+
 **Risk:** Medium - Coil has some breaking changes
+
 **Dependencies Updated:**
 - Coil: 2.1.0 → 2.6.0
 - Accompanist: 0.24.10-beta → 0.34.3
@@ -591,7 +678,9 @@ feat: update coil to 2.6.0 and accompanist to 0.34.3
 ## Step 10: Testing Dependencies
 
 **Priority:** Medium - Ensure test compatibility
+
 **Risk:** Low
+
 **Dependencies Updated:**
 - JUnit: 4.13.2 → 4.13.2 (unchanged, verify)
 - Coroutines Test: 1.6.2 → 1.8.0
@@ -643,6 +732,7 @@ chore: update testing dependencies
 ## Step 11: Cleanup and Final Verification
 
 **Priority:** Low - Final polish
+
 **Risk:** Low
 
 ### Changes
@@ -697,14 +787,14 @@ chore: final dependency cleanup and verification
 
 ## Dependency Update Summary by Architecture Layer
 
-### Build System (Step 1)
-| Dependency | From | To |
-|------------|------|-----|
-| Gradle | 7.2 | 8.7 |
-| AGP | 7.1.0 | 8.5.0 |
-| Kotlin | 1.6.10 | 1.9.24 |
-| compileSdk | 32 | 34 |
-| targetSdk | 32 | 34 |
+### Build System
+| Dependency | From   | To     | Step |
+|------------|--------|--------|------|
+| Gradle     | 7.2    | 8.7    | 0    |
+| AGP        | 7.1.0  | 8.5.0  | 0    |
+| Kotlin     | 1.6.10 | 1.9.24 | 1    |
+| compileSdk | 32     | 34     | 1    |
+| targetSdk  | 32     | 34     | 1    |
 
 ### Data Layer
 | Dependency | From | To | Step |
@@ -757,8 +847,8 @@ git checkout HEAD~1 -- app/build.gradle
 
 | Step | Estimated Time | Risk Level |
 |------|----------------|------------|
-| Step 0: Gradle Wrapper | 5 min | Low |
-| Step 1: AGP + Kotlin | 15 min | High |
+| Step 0: Gradle + AGP | 15 min | High |
+| Step 1: Kotlin + SDK | 10 min | High |
 | Step 2: AndroidX Core | 5 min | Medium |
 | Step 3: Lifecycle | 5 min | Medium |
 | Step 4: Compose | 15 min | High |

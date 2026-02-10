@@ -4,7 +4,6 @@ buildscript {
         compose_version = '1.6.8'
         retrofit_version = '2.11.0'
         hilt_version = '2.51.1'
-        accompanist_version = '0.24.10-beta'
         room_version = '2.6.1'
     }
     dependencies {

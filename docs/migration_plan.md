@@ -444,31 +444,27 @@ chore: update networking dependencies
 
 ---
 
-## Step 6: UI Utilities (Coil + Accompanist)
+## Step 6: UI Utilities (Coil + PullRefresh)
 
 **Priority:** Medium - Image loading and UI helpers
 
-**Risk:** Medium - Coil has some breaking changes
+**Risk:** Medium - Coil has some breaking changes, Accompanist SwipeRefresh is deprecated
 
 **Dependencies Updated:**
 - Coil: 2.1.0 → 2.6.0
-- Accompanist: 0.24.10-beta → 0.34.3
+- Accompanist SwipeRefresh: Removed (Migrated to Material PullRefresh)
 
 ### Changes
 
 **`build.gradle` (project level):**
 
-```groovy
-ext {
-    accompanist_version = '0.34.3'
-}
-```
+Removed `accompanist_version` as it is no longer needed for SwipeRefresh.
 
 **`app/build.gradle` dependencies:**
 
 ```groovy
 dependencies {
-    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+    // Removed accompanist-swiperefresh
     implementation "io.coil-kt:coil-compose:2.6.0"
     // ... keep other dependencies unchanged
 }
@@ -476,7 +472,7 @@ dependencies {
 
 ### Code Fixes Required
 
-**Coil Image Loading:**
+**1. Coil Image Loading:**
 ```kotlin
 // OLD (Coil 2.1.0)
 Image(
@@ -491,6 +487,26 @@ AsyncImage(
 )
 ```
 
+**2. SwipeRefresh Migration:**
+Migrated from Accompanist `SwipeRefresh` to Material `PullRefresh`:
+
+```kotlin
+// OLD (Accompanist)
+SwipeRefresh(
+    state = rememberSwipeRefreshState(isRefreshing),
+    onRefresh = onRefresh,
+) {
+    Content()
+}
+
+// NEW (Material)
+val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
+Box(Modifier.pullRefresh(pullRefreshState)) {
+    Content()
+    PullRefreshIndicator(isRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+}
+```
+
 ### Verify
 
 ```bash
@@ -499,22 +515,23 @@ AsyncImage(
 
 ### Expected Outcome
 - Images load correctly with AsyncImage
-- SwipeRefresh works with Accompanist 0.34.3
+- Pull-to-refresh works using Material PullRefresh component
 
 ### Common Issues
 
 | Issue | Solution |
 |-------|----------|
 | `rememberImagePainter` | Replace with `AsyncImage` |
-| `Crossfade` disabled by default | Set `crossfade(true)` if needed |
+| `SwipeRefresh` not found | Import `androidx.compose.material.pullrefresh` components and update implementation |
 
 ### Commit
 
 ```
-feat: update coil to 2.6.0 and accompanist to 0.34.3
+feat: update coil and migrate to material pullrefresh
 
 - coil-compose: 2.1.0 → 2.6.0
-- accompanist: 0.24.10-beta → 0.34.3
+- Removed accompanist-swiperefresh
+- Migrated to androidx.compose.material.pullrefresh
 - Updated to use AsyncImage for image loading
 ```
 

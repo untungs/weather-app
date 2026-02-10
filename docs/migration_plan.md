@@ -128,16 +128,20 @@ refactor: update Gradle to 8.7 and AGP to 8.5.0
 
 ---
 
-## Step 1: Kotlin + SDK Updates
+## Step 1: Kotlin, SDK & Core Library Updates (Compose, Hilt, Room)
 
-**Priority:** Critical - Kotlin and SDK foundation
+**Priority:** Critical - Foundation & Dependency Compatibility
 
-**Risk:** High - Kotlin version bump
+**Risk:** High - Extensive version bumps
 
 **Dependencies Updated:**
 - Kotlin: 1.6.10 → 1.9.24
 - compileSdk: 32 → 34
 - targetSdk: 32 → 34
+- Compose: 1.1.1 → 1.6.8
+- Compose Compiler: 1.1.1 → 1.5.14
+- Hilt: 2.41 → 2.51.1
+- Room: 2.4.2 → 2.6.1
 
 ### Changes
 
@@ -147,11 +151,11 @@ refactor: update Gradle to 8.7 and AGP to 8.5.0
 buildscript {
     ext {
         kotlin_version = '1.9.24'
-        compose_version = '1.1.1'  // Keep unchanged for now
+        compose_version = '1.6.8'
         retrofit_version = '2.9.0'  // Keep unchanged for now
-        hilt_version = '2.41'       // Keep unchanged for now
+        hilt_version = '2.51.1'
         accompanist_version = '0.24.10-beta'  // Keep unchanged for now
-        room_version = '2.4.2'      // Keep unchanged for now
+        room_version = '2.6.1'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
@@ -192,7 +196,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'  // Keep unchanged for now
+        kotlinCompilerExtensionVersion '1.5.14'
     }
 
     buildFeatures {
@@ -207,6 +211,15 @@ android {
     }
 }
 ```
+
+### Code Fixes Required (Compose)
+
+1. **Scaffold padding:**
+   ```kotlin
+   Scaffold { innerPadding -> /* usage */ }
+   ```
+2. **Coil:**
+   If using Coil, note that `rememberImagePainter` is deprecated in newer versions (addressed in Step 6).
 
 ### Verify
 
@@ -225,15 +238,19 @@ android {
 |-------|----------|
 | `Java version mismatch` | Verify `JAVA_HOME` points to JDK 17 |
 | `Kotlin plugin error` | Ensure `kotlin_version` is correctly set |
+| `Modifier.drawBehind` | Use `Modifier.drawWithContent` if referenced |
+| `Stack` composable | Replace with `Box` |
+| Material icons import | Update to Material3 icons package if needed |
 
 ### Commit
 
 ```
-refactor: update Kotlin to 1.9.24 and SDK to 34
+refactor: update Kotlin, SDK, Compose, Hilt, and Room
 
 - Kotlin 1.6.10 → 1.9.24
-- compileSdk: 32 → 34
-- targetSdk: 32 → 34
+- SDK 32 → 34
+- Compose 1.6.8, Hilt 2.51.1, Room 2.6.1
+- Updated dependencies for Kotlin 1.9 compatibility
 ```
 
 ---
@@ -327,99 +344,7 @@ chore: update lifecycle dependencies to 2.8.0
 
 ---
 
-## Step 4: Jetpack Compose (Major Version Bump)
-
-**Priority:** Critical - Largest impact on UI code
-
-**Risk:** High - Breaking changes in Compose APIs
-
-**Dependencies Updated:**
-- Compose: 1.1.1 → 1.6.10
-- Compose Compiler: 1.1.1 → 1.6.0
-
-### Changes
-
-**`build.gradle` (project level):**
-
-```groovy
-ext {
-    compose_version = '1.6.10'
-    // ... keep other versions unchanged
-}
-```
-
-**`app/build.gradle`:**
-
-```groovy
-android {
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.6.0'
-    }
-}
-```
-
-**`app/build.gradle` dependencies:**
-
-```groovy
-dependencies {
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    // ... keep other dependencies unchanged
-}
-```
-
-### Code Fixes Required
-
-After updating Compose, if compilation fails with deprecation warnings:
-
-1. **Scaffold padding (if any):**
-   ```kotlin
-   // May need review if using Scaffold padding values
-   Scaffold { innerPadding ->
-       // innerPadding handling unchanged but verify calculations
-   }
-   ```
-
-2. **Crossfade API (if used):**
-   ```kotlin
-   // Check usage of Crossfade composable
-   Crossfade(targetState = value) { state ->
-       // Already compatible in 1.6.x
-   }
-   ```
-
-### Verify
-
-```bash
-./gradlew clean assembleDebug
-```
-
-### Expected Outcome
-- Project compiles with Compose 1.6.10
-- UI renders correctly
-
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| `Modifier.drawBehind` | Use `Modifier.drawWithContent` if referenced |
-| `Stack` composable | Replace with `Box` |
-| Material icons import | Update to Material3 icons package |
-
-### Commit
-
-```
-feat: update compose to 1.6.10
-
-- compose: 1.1.1 → 1.6.10
-- compose compiler: 1.1.1 → 1.6.0
-- Updated Compose dependencies
-```
-
----
-
-## Step 5: Compose Navigation
+## Step 4: Compose Navigation
 
 **Priority:** High - Navigation integration with Compose
 
@@ -448,7 +373,7 @@ dependencies {
 ```
 
 ### Expected Outcome
-- Navigation 2.7.7 works with Compose 1.6.10
+- Navigation 2.7.7 works with Compose 1.6.8
 - Hilt navigation integration works
 
 ### Commit
@@ -462,87 +387,7 @@ chore: update navigation and hilt-navigation-compose
 
 ---
 
-## Step 6: Hilt (Dependency Injection)
-
-**Priority:** High - Core DI framework
-
-**Risk:** Medium
-
-**Dependencies Updated:**
-- Hilt: 2.41 → 2.51.1
-
-### Changes
-
-**`build.gradle` (project level):**
-
-```groovy
-ext {
-    hilt_version = '2.51.1'
-}
-```
-
-### Verify
-
-```bash
-./gradlew clean assembleDebug
-```
-
-### Expected Outcome
-- Hilt 2.51.1 generates components correctly
-- All `@Inject`, `@HiltViewModel`, `@AndroidEntryPoint` work
-
-### Commit
-
-```
-chore: update hilt to 2.51.1
-
-- hilt: 2.41 → 2.51.1
-- Supports Kotlin 1.9.x and AGP 8.5.0
-```
-
----
-
-## Step 7: Room (Database)
-
-**Priority:** High - Local data persistence
-
-**Risk:** Medium
-
-**Dependencies Updated:**
-- Room: 2.4.2 → 2.6.1
-
-### Changes
-
-**`build.gradle` (project level):**
-
-```groovy
-ext {
-    room_version = '2.6.1'
-}
-```
-
-### Verify
-
-```bash
-./gradlew clean assembleDebug
-```
-
-### Expected Outcome
-- Room 2.6.1 generates DAOs correctly
-- No breaking changes for current entity definitions
-
-### Commit
-
-```
-chore: update room to 2.6.1
-
-- room: 2.4.2 → 2.6.1
-- Improved compile-time checks
-```
-
----
-
-## Step 8: Networking Stack
+## Step 5: Networking Stack
 
 **Priority:** Medium - API communication
 
@@ -599,7 +444,7 @@ chore: update networking dependencies
 
 ---
 
-## Step 9: UI Utilities (Coil + Accompanist)
+## Step 6: UI Utilities (Coil + Accompanist)
 
 **Priority:** Medium - Image loading and UI helpers
 
@@ -675,7 +520,7 @@ feat: update coil to 2.6.0 and accompanist to 0.34.3
 
 ---
 
-## Step 10: Testing Dependencies
+## Step 7: Testing Dependencies
 
 **Priority:** Medium - Ensure test compatibility
 
@@ -687,7 +532,7 @@ feat: update coil to 2.6.0 and accompanist to 0.34.3
 - Turbine: 0.8.0 → 1.1.0
 - AndroidX Test Ext JUnit: 1.1.3 → 1.1.5
 - Espresso Core: 3.4.0 → 3.5.1
-- Compose Test JUnit: 1.1.1 → 1.6.10 (match Compose version)
+- Compose Test JUnit: 1.1.1 → 1.6.8 (match Compose version)
 
 ### Changes
 
@@ -724,12 +569,12 @@ chore: update testing dependencies
 - turbine: 0.8.0 → 1.1.0
 - androidx test ext junit: 1.1.3 → 1.1.5
 - espresso core: 3.4.0 → 3.5.1
-- compose test junit: → 1.6.10 (matching compose version)
+- compose test junit: → 1.6.8 (matching compose version)
 ```
 
 ---
 
-## Step 11: Cleanup and Final Verification
+## Step 8: Cleanup and Final Verification
 
 **Priority:** Low - Final polish
 
@@ -799,32 +644,32 @@ chore: final dependency cleanup and verification
 ### Data Layer
 | Dependency | From | To | Step |
 |------------|------|-----|------|
-| Room | 2.4.2 | 2.6.1 | 7 |
-| Retrofit | 2.9.0 | 2.11.0 | 8 |
-| OkHttp Logging | 4.9.3 | 4.12.0 | 8 |
-| Kotlinx Serialization | 1.3.3 | 1.6.3 | 8 |
-| Hilt | 2.41 | 2.51.1 | 6 |
+| Room | 2.4.2 | 2.6.1 | 1 |
+| Retrofit | 2.9.0 | 2.11.0 | 5 |
+| OkHttp Logging | 4.9.3 | 4.12.0 | 5 |
+| Kotlinx Serialization | 1.3.3 | 1.6.3 | 5 |
+| Hilt | 2.41 | 2.51.1 | 1 |
 
 ### UI Layer
 | Dependency | From | To | Step |
 |------------|------|-----|------|
-| Compose | 1.1.1 | 1.6.10 | 4 |
-| Compose Compiler | 1.1.1 | 1.6.0 | 4 |
-| Navigation | 2.5.0-rc01 | 2.7.7 | 5 |
+| Compose | 1.1.1 | 1.6.8 | 1 |
+| Compose Compiler | 1.1.1 | 1.5.14 | 1 |
+| Navigation | 2.5.0-rc01 | 2.7.7 | 4 |
 | Lifecycle | 2.4.1 | 2.8.0 | 3 |
 | Activity Compose | 1.4.0 | 1.9.0 | 2 |
 | Core KTX | 1.8.0 | 1.13.1 | 2 |
-| Coil | 2.1.0 | 2.6.0 | 9 |
-| Accompanist | 0.24.10-beta | 0.34.3 | 9 |
-| Hilt Nav Compose | 1.0.0 | 1.2.0 | 5 |
+| Coil | 2.1.0 | 2.6.0 | 6 |
+| Accompanist | 0.24.10-beta | 0.34.3 | 6 |
+| Hilt Nav Compose | 1.0.0 | 1.2.0 | 4 |
 
 ### Testing
 | Dependency | From | To | Step |
 |------------|------|-----|------|
-| Coroutines Test | 1.6.2 | 1.8.0 | 10 |
-| Turbine | 0.8.0 | 1.1.0 | 10 |
-| Test Ext JUnit | 1.1.3 | 1.1.5 | 10 |
-| Espresso Core | 3.4.0 | 3.5.1 | 10 |
+| Coroutines Test | 1.6.2 | 1.8.0 | 7 |
+| Turbine | 0.8.0 | 1.1.0 | 7 |
+| Test Ext JUnit | 1.1.3 | 1.1.5 | 7 |
+| Espresso Core | 3.4.0 | 3.5.1 | 7 |
 
 ---
 
@@ -848,17 +693,14 @@ git checkout HEAD~1 -- app/build.gradle
 | Step | Estimated Time | Risk Level |
 |------|----------------|------------|
 | Step 0: Gradle + AGP | 15 min | High |
-| Step 1: Kotlin + SDK | 10 min | High |
+| Step 1: Core Platform | 25 min | High |
 | Step 2: AndroidX Core | 5 min | Medium |
 | Step 3: Lifecycle | 5 min | Medium |
-| Step 4: Compose | 15 min | High |
-| Step 5: Navigation | 5 min | Medium |
-| Step 6: Hilt | 5 min | Medium |
-| Step 7: Room | 5 min | Medium |
-| Step 8: Networking | 5 min | Low |
-| Step 9: UI Utilities | 10 min | Medium |
-| Step 10: Testing | 5 min | Low |
-| Step 11: Cleanup | 5 min | Low |
+| Step 4: Navigation | 5 min | Medium |
+| Step 5: Networking | 5 min | Low |
+| Step 6: UI Utilities | 10 min | Medium |
+| Step 7: Testing | 5 min | Low |
+| Step 8: Cleanup | 5 min | Low |
 
 **Total Estimated Time:** ~1.5 - 2 hours
 

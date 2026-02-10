@@ -10,8 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.ui.Alignment
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
@@ -51,7 +54,7 @@ fun HomeRoute(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     uiState: LoadingUiState<Unit>,
@@ -63,10 +66,10 @@ fun HomeScreen(
     if (locations.isEmpty()) {
         EmptyScreen(text = "Your favorite locations will be shown here")
     } else {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(uiState is LoadingUiState.Loading),
-            onRefresh = onRefresh,
-        ) {
+        val isRefreshing = uiState is LoadingUiState.Loading
+        val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
+
+        Box(Modifier.pullRefresh(pullRefreshState)) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(locations, key = { it.location.name }) {
                     WeatherCard(
@@ -95,6 +98,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+            PullRefreshIndicator(isRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         }
     }
 }

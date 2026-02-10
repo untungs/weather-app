@@ -12,6 +12,6 @@ class CommonExtensionsKtTest {
 
     @Test
     fun testLongToDateString() {
-        Assert.assertEquals("Jun 11, 2022", 1654926438000L.toDateString())
+        Assert.assertEquals("Saturday, June 11, 2022", 1654926438000L.toDateString())
     }
 }

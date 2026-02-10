@@ -1,11 +1,11 @@
 buildscript {
     ext {
-        kotlin_version = '1.6.10'
-        compose_version = '1.1.1'
+        kotlin_version = '1.9.24'
+        compose_version = '1.6.8'
         retrofit_version = '2.9.0'
-        hilt_version = '2.41'
+        hilt_version = '2.51.1'
         accompanist_version = '0.24.10-beta'
-        room_version = '2.4.2'
+        room_version = '2.6.1'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"

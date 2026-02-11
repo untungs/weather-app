@@ -4,9 +4,23 @@ Weather App is a sample app to get current and daily weather forecast, built wit
 [Jetpack Compose](https://developer.android.com/jetpack/compose). 
 It uses API from [OpenWeathermap](https://openweathermap.org).
 
-To try out this sample app, you need to use
-[Android Studio](https://developer.android.com/studio).
-You can clone this repository and build it right away.
+To try out this sample app, you need [Android Studio](https://developer.android.com/studio).
+
+## Getting Started
+
+1. **Get an API Key**: Sign up at [OpenWeatherMap](https://openweathermap.org/api) and obtain your free API key.
+2. **Clone the repository**:
+   ```bash
+   git clone https://github.com/untungs/weather-app.git
+   ```
+3. **Configure API Key**:
+   - Open the project in Android Studio.
+   - Locate the `local.properties` file in the root directory.
+   - Add your API key there:
+     ```properties
+     API_KEY=YOUR_OPENWEATHER_API_KEY_HERE
+     ```
+4. **Build and Run**: The app uses the **Secrets Gradle Plugin** to automatically inject the key into the build config.
 
 ## Screenshots
 
@@ -30,7 +44,8 @@ User can click the location card on Home screen to navigate to Weather Forecast 
 
 1. Location card calls `navController.navigateToWeatherDaily` through lambda function.
 2. App navigate to `WeatherDailyRoute` and `WeatherDailyViewModel` received latitude & longitude parameters through `SavedStateHandle`.
-3. In ViewModel latitude & longitude data are used to retrieve the weather forecast using `WeatherRepository` which in turn calls to `NetworkDataSource` which is implemented using `Retrofit` library.
+3. In ViewModel, latitude & longitude data are used to retrieve the current weather and 5-day forecast using `WeatherRepository`, which in turn calls the `NetworkDataSource` (implemented using `Retrofit`).
+   - Note: The app currently uses the `/data/2.5/weather` and `/data/2.5/forecast` endpoints.
 4. Latitude & longitude are data also used to check whether this location is favorite by querying the data in local database using `Room` library.
 5. Data from network and from local database are combined into `WeatherUiState` flow which contain the following data 
    1. Location name

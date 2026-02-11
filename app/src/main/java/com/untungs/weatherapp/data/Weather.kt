@@ -1,13 +1,7 @@
 package com.untungs.weatherapp.data
 
 import com.untungs.weatherapp.local.entity.CurrentWeatherDb
-import com.untungs.weatherapp.local.entity.FavoriteLocationEntity
 import com.untungs.weatherapp.local.entity.WeatherDb
-
-data class CityWeather(
-    val city: City,
-    val weatherStat: WeatherStat
-)
 
 data class City(
     val name: String,
@@ -44,7 +38,7 @@ sealed interface WeatherStat {
         override val weather: Weather,
         override val humidity: Float,
         override val windSpeed: Float,
-        val temp: Temp
+        val temp: Float
     ) : WeatherStat
 }
 
@@ -52,11 +46,6 @@ data class Weather(
     val main: String,
     val description: String,
     val icon: String
-)
-
-data class Temp(
-    val day: Float,
-    val night: Float
 )
 
 fun WeatherStat.CurrentWeatherStat.toDb() = CurrentWeatherDb(

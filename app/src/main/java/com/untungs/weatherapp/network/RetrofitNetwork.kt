@@ -5,7 +5,14 @@ import com.untungs.weatherapp.BuildConfig
 import com.untungs.weatherapp.common.NO_CONNECTION
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.network.model.CityGeo
-import com.untungs.weatherapp.network.model.WeatherDaily
+import com.untungs.weatherapp.network.model.NetworkForecast
+import com.untungs.weatherapp.network.model.NetworkWeather
+import java.io.IOException
+import java.lang.Exception
+import java.net.ConnectException
+import java.net.UnknownHostException
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -16,12 +23,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
-import java.io.IOException
-import java.lang.Exception
-import java.net.ConnectException
-import java.net.UnknownHostException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private interface NetworkApi {
 
@@ -31,13 +32,19 @@ private interface NetworkApi {
         @Query("limit") limit: Int = 10
     ): List<CityGeo>
 
-    @GET(value = "data/2.5/onecall")
-    suspend fun getWeatherDaily(
+    @GET(value = "data/2.5/weather")
+    suspend fun getCurrentWeather(
         @Query("lat") lat: Float,
         @Query("lon") lon: Float,
-        @Query("units") units: String = "metric",
-        @Query("exclude") exclude: String = "hourly,minutely"
-    ): WeatherDaily
+        @Query("units") units: String = "metric"
+    ): NetworkWeather
+
+    @GET(value = "data/2.5/forecast")
+    suspend fun getForecast(
+        @Query("lat") lat: Float,
+        @Query("lon") lon: Float,
+        @Query("units") units: String = "metric"
+    ): NetworkForecast
 }
 
 @Singleton
@@ -64,15 +71,18 @@ class RetrofitNetwork @Inject constructor() : NetworkDataSource {
 
     override suspend fun getCities(name: String): List<CityGeo> = networkApi.getCities(name)
 
-    override suspend fun getWeatherDaily(lat: Float, lon: Float): WeatherDaily =
-        networkApi.getWeatherDaily(lat, lon)
+    override suspend fun getCurrentWeather(lat: Float, lon: Float): NetworkWeather =
+        networkApi.getCurrentWeather(lat, lon)
+
+    override suspend fun getForecast(lat: Float, lon: Float): NetworkForecast =
+        networkApi.getForecast(lat, lon)
 }
 
 class NetworkInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = with(chain.request()) {
             val url = url.newBuilder()
-                .addQueryParameter("appid", "c52ce88317a16b2e83391b2a47e86a01")
+                .addQueryParameter("appid", BuildConfig.API_KEY)
                 .build()
 
             newBuilder().url(url).build()
@@ -85,6 +95,7 @@ class NetworkInterceptor : Interceptor {
                 is UnknownHostException, is ConnectException -> {
                     IOException(NO_CONNECTION)
                 }
+
                 else -> IOException(SOMETHING_WENT_WRONG)
             }
         }

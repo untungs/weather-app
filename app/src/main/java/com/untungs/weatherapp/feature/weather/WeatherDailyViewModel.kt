@@ -10,7 +10,6 @@ import com.untungs.weatherapp.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,7 +60,7 @@ class WeatherDailyViewModel @Inject constructor(
                 if (fromUser) {
                     loadingUiState.update { LoadingUiState.Success(Unit) }
                 }
-            } catch (error: IOException) {
+            } catch (error: Exception) {
                 loadingUiState.update { LoadingUiState.Error(error.message ?: SOMETHING_WENT_WRONG) }
             }
         }

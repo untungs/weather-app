@@ -72,7 +72,7 @@ class NetworkInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = with(chain.request()) {
             val url = url.newBuilder()
-                .addQueryParameter("appid", "c52ce88317a16b2e83391b2a47e86a01")
+                .addQueryParameter("appid", BuildConfig.API_KEY)
                 .build()
 
             newBuilder().url(url).build()

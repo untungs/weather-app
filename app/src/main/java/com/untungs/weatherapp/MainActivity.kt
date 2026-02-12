@@ -3,6 +3,7 @@ package com.untungs.weatherapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -27,9 +28,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            WeatherApp()
-        }
+        enableEdgeToEdge()
+        setContent { WeatherApp() }
     }
 }
 
@@ -42,8 +42,12 @@ fun WeatherApp() {
 
         val appBarState = AppBarState(
             title = when (route) {
-                WeatherDailyDestination.route -> currentBackstack?.arguments
-                    ?.getString(WeatherDailyDestination.city).orEmpty()
+                WeatherDailyDestination.route ->
+                    currentBackstack
+                        ?.arguments
+                        ?.getString(WeatherDailyDestination.city)
+                        .orEmpty()
+
                 else -> stringResource(id = R.string.app_name)
             },
             hasBackStack = route != HomeDestination.route,
@@ -85,7 +89,5 @@ fun WeatherApp() {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    WeatherAppTheme {
-        WeatherApp()
-    }
+    WeatherAppTheme { WeatherApp() }
 }

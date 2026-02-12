@@ -1,15 +1,17 @@
 package com.untungs.weatherapp.ui.component
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -55,43 +57,45 @@ fun DefaultAppBar(
     onBackClicked: Function,
     onSearchOpened: Function
 ) {
-    TopAppBar(
-        title = { Text(text = state.title) },
-        navigationIcon = if (state.hasBackStack) {
-            {
-                IconButton(onClick = onBackClicked) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+    Surface(color = MaterialTheme.colors.primarySurface) {
+        TopAppBar(
+            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
+            title = { Text(text = state.title) },
+            backgroundColor = Color.Transparent,
+            elevation = 0.dp,
+            navigationIcon =
+                if (state.hasBackStack) {
+                    {
+                        IconButton(onClick = onBackClicked) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
+            actions = {
+                state.action?.let {
+                    IconButton(onClick = it.second) {
+                        Icon(
+                            imageVector = it.first,
+                            contentDescription = "Action",
+                            tint = Color.White
+                        )
+                    }
                 }
-            }
-        } else {
-            null
-        },
-        actions = {
-            state.action?.let {
-                IconButton(
-                    onClick = it.second
-                ) {
+                IconButton(onClick = onSearchOpened) {
                     Icon(
-                        imageVector = it.first,
-                        contentDescription = "Action",
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search Icon",
                         tint = Color.White
                     )
                 }
             }
-            IconButton(
-                onClick = onSearchOpened
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Search Icon",
-                    tint = Color.White
-                )
-            }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -108,39 +112,36 @@ fun SearchAppBar(
         }
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-    ) {
+    Surface(color = MaterialTheme.colors.primarySurface, modifier = Modifier.fillMaxWidth()) {
         val customTextSelectionColors = TextSelectionColors(
             handleColor = MaterialTheme.colors.onSurface,
             backgroundColor = MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
         )
 
         CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
-            TextField(modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .focusRequester(focusRequester),
                 value = text,
                 onValueChange = { text = it },
                 placeholder = {
                     Text(
-                        modifier = Modifier
-                            .alpha(ContentAlpha.medium),
+                        modifier = Modifier.alpha(ContentAlpha.medium),
                         text = "Search",
                         color = Color.White
                     )
                 },
-                textStyle = TextStyle(
-                    fontSize = MaterialTheme.typography.subtitle1.fontSize,
-                    color = MaterialTheme.colors.onPrimary
-                ),
+                textStyle =
+                    TextStyle(
+                        fontSize = MaterialTheme.typography.subtitle1.fontSize,
+                        color = MaterialTheme.colors.onPrimary
+                    ),
                 singleLine = true,
                 leadingIcon = {
                     IconButton(
-                        modifier = Modifier
-                            .alpha(ContentAlpha.medium),
+                        modifier = Modifier.alpha(ContentAlpha.medium),
                         onClick = { onSearchClicked(text) }
                     ) {
                         Icon(
@@ -164,30 +165,24 @@ fun SearchAppBar(
                         )
                     }
                 },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        onSearchClicked(text)
-                    }
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = MaterialTheme.colors.primarySurface,
-                    cursorColor = Color.White
-                        .copy(alpha = ContentAlpha.medium),
-                    unfocusedIndicatorColor = MaterialTheme.colors.primarySurface,
-                    focusedIndicatorColor = MaterialTheme.colors.primarySurface
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
+                colors =
+                    TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        cursorColor = Color.White.copy(alpha = ContentAlpha.medium),
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
+                    ),
                 shape = RectangleShape
             )
         }
     }
 }
 //
-//@Preview
-//@Composable
-//fun DefaultAppBarPreview() {
+// @Preview
+// @Composable
+// fun DefaultAppBarPreview() {
 //    DefaultAppBar(
 //        AppBarState.Default(
 //            title = stringResource(id = R.string.app_name),
@@ -196,10 +191,10 @@ fun SearchAppBar(
 //            onSearchTriggered = {}
 //        )
 //    )
-//}
+// }
 //
-//@Preview
-//@Composable
-//fun SearchAppBarPreview() {
+// @Preview
+// @Composable
+// fun SearchAppBarPreview() {
 //    SearchAppBar(AppBarState.Search(onCloseClicked = {}, onSearchClicked = {}))
-//}
+// }

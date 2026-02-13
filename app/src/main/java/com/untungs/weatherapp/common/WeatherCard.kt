@@ -20,103 +20,127 @@ fun WeatherCard(
     titleCard: String,
     stat: WeatherStat,
     modifier: Modifier = Modifier,
+    onClick: Function? = null,
     bottomContent: @Composable (() -> Unit)? = null
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp, 8.dp, 8.dp, 0.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = titleCard,
-                modifier = Modifier.padding(8.dp, 0.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                AsyncImage(
-                    model = "https://openweathermap.org/img/wn/${stat.weather.icon}@4x.png",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .padding(8.dp),
-                    contentDescription = "Weather Icon"
-                )
-                when (stat) {
-                    is WeatherStat.CurrentWeatherStat -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.device_thermostat),
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .padding(4.dp),
-                                contentDescription = "Temp"
-                            )
-                            Text(
-                                text = "${stat.temp}°",
-                                style = MaterialTheme.typography.displayMedium
-                            )
-                        }
-                    }
+    val cardModifier = modifier
+        .fillMaxWidth()
+        .padding(8.dp, 8.dp, 8.dp, 0.dp)
 
-                    is WeatherStat.DailyWeatherStat -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.device_thermostat),
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .padding(4.dp),
-                                contentDescription = "Temp"
-                            )
-                            Text(
-                                text = "${stat.temp}°",
-                                style = MaterialTheme.typography.displaySmall
-                            )
-                        }
+    if (onClick != null) {
+        Card(
+            onClick = onClick,
+            modifier = cardModifier,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            CardContent(titleCard, stat, bottomContent)
+        }
+    } else {
+        Card(
+            modifier = cardModifier,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            CardContent(titleCard, stat, bottomContent)
+        }
+    }
+}
+
+@Composable
+private fun CardContent(
+    titleCard: String,
+    stat: WeatherStat,
+    bottomContent: @Composable (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = titleCard,
+            modifier = Modifier.padding(8.dp, 0.dp),
+            style = MaterialTheme.typography.titleLarge
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AsyncImage(
+                model = "https://openweathermap.org/img/wn/${stat.weather.icon}@4x.png",
+                modifier = Modifier
+                    .size(80.dp)
+                    .padding(8.dp),
+                contentDescription = "Weather Icon"
+            )
+            when (stat) {
+                is WeatherStat.CurrentWeatherStat -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.device_thermostat),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .padding(4.dp),
+                            contentDescription = "Temp"
+                        )
+                        Text(
+                            text = "${stat.temp}°",
+                            style = MaterialTheme.typography.displayMedium
+                        )
                     }
                 }
-                Column(
-                    modifier = Modifier.padding(16.dp, 8.dp)
-                ) {
-                    CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.labelMedium
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.humidity_mid),
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(4.dp),
-                                contentDescription = "Humidity"
-                            )
-                            Text(text = "Humidity: ${stat.humidity}")
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.wind_power),
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(4.dp),
-                                contentDescription = "Wind Speed"
-                            )
-                            Text(text = "Wind: ${stat.windSpeed}")
-                        }
+
+                is WeatherStat.DailyWeatherStat -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.device_thermostat),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .padding(4.dp),
+                            contentDescription = "Temp"
+                        )
+                        Text(
+                            text = "${stat.temp}°",
+                            style = MaterialTheme.typography.displaySmall
+                        )
                     }
                 }
             }
-
-            bottomContent?.invoke()
+            Column(
+                modifier = Modifier.padding(16.dp, 8.dp)
+            ) {
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.labelMedium
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.humidity_mid),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(4.dp),
+                            contentDescription = "Humidity"
+                        )
+                        Text(text = "Humidity: ${stat.humidity}")
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.wind_power),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(4.dp),
+                            contentDescription = "Wind Speed"
+                        )
+                        Text(text = "Wind: ${stat.windSpeed}")
+                    }
+                }
+            }
         }
+
+        bottomContent?.invoke()
     }
 }
 

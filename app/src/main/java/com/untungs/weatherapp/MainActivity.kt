@@ -4,9 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,8 +19,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.untungs.weatherapp.feature.home.*
-import com.untungs.weatherapp.feature.search.*
+import com.untungs.weatherapp.feature.home.homeGraph
+import com.untungs.weatherapp.feature.search.navigateToSearch
+import com.untungs.weatherapp.feature.search.searchGraph
 import com.untungs.weatherapp.feature.weather.navigateToWeatherDaily
 import com.untungs.weatherapp.feature.weather.weatherGraph
 import com.untungs.weatherapp.nav.Home
@@ -84,14 +89,16 @@ fun WeatherApp() {
             NavHost(
                 navController = navController,
                 startDestination = Home,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.fillMaxSize()
             ) {
-                homeGraph(snackbarHostState) { navController.navigateToWeatherDaily(it) }
-                searchGraph {
+                homeGraph(snackbarHostState, innerPadding) {
+                    navController.navigateToWeatherDaily(it)
+                }
+                searchGraph(innerPadding) {
                     navController.popBackStack<Search>(inclusive = true)
                     navController.navigateToWeatherDaily(it)
                 }
-                weatherGraph(appBarState, snackbarHostState)
+                weatherGraph(appBarState, snackbarHostState, innerPadding)
             }
         }
     }

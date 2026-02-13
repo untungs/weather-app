@@ -3,19 +3,20 @@ package com.untungs.weatherapp.feature.weather
 import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ fun WeatherDailyRoute(
     args: WeatherDaily,
     appBarState: AppBarState,
     snackbarHostState: SnackbarHostState,
+    contentPadding: PaddingValues,
     viewModel: WeatherDailyViewModel = hiltViewModel(
         creationCallback = { factory: WeatherDailyViewModel.WeatherDailyViewModelFactory ->
             factory.create(args)
@@ -75,6 +77,7 @@ fun WeatherDailyRoute(
     WeatherDailyScreen(
         uiState = uiState,
         isRefreshing = loadingState == LoadingUiState.Loading,
+        contentPadding = contentPadding,
         onRefresh = viewModel::refreshWeather
     )
 }
@@ -84,6 +87,7 @@ fun WeatherDailyRoute(
 fun WeatherDailyScreen(
     uiState: WeatherUiState,
     isRefreshing: Boolean,
+    contentPadding: PaddingValues,
     onRefresh: () -> Unit
 ) {
     PullToRefreshBox(
@@ -93,13 +97,7 @@ fun WeatherDailyScreen(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding =
-                PaddingValues(
-                    bottom =
-                        WindowInsets.navigationBars
-                            .asPaddingValues()
-                            .calculateBottomPadding()
-                )
+            contentPadding = contentPadding
         ) {
             uiState.weatherDaily?.let { stat ->
                 item {

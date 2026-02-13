@@ -4,15 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,16 +28,18 @@ import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 
 @Composable
 fun SearchRoute(
+    contentPadding: PaddingValues,
     onClickItem: (location: Location) -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.loadingUiState.collectAsStateWithLifecycle()
-    SearchScreen(uiState, onClickItem)
+    SearchScreen(uiState, contentPadding, onClickItem)
 }
 
 @Composable
 fun SearchScreen(
     uiState: LoadingUiState<List<Location>>,
+    contentPadding: PaddingValues = PaddingValues(),
     onClickItem: (location: Location) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -53,13 +54,7 @@ fun SearchScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding =
-                            PaddingValues(
-                                bottom =
-                                    WindowInsets.navigationBars
-                                        .asPaddingValues()
-                                        .calculateBottomPadding()
-                            )
+                        contentPadding = contentPadding
                     ) { items(uiState.data) { SearchItem(it, onClickItem) } }
                 }
             }

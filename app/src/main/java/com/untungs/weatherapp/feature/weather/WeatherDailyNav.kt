@@ -1,5 +1,6 @@
 package com.untungs.weatherapp.feature.weather
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -11,11 +12,12 @@ import com.untungs.weatherapp.ui.component.AppBarState
 
 fun NavGraphBuilder.weatherGraph(
     appBarState: AppBarState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    contentPadding: PaddingValues
 ) {
     composable<WeatherDaily> {
         val args = it.toRoute<WeatherDaily>()
-        WeatherDailyRoute(args, appBarState, snackbarHostState)
+        WeatherDailyRoute(args, appBarState, snackbarHostState, contentPadding)
     }
 }
 

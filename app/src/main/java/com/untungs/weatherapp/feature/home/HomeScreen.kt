@@ -1,21 +1,25 @@
 package com.untungs.weatherapp.feature.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +34,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeRoute(
     snackbarHostState: SnackbarHostState,
+    contentPadding: PaddingValues,
     onClickLocation: (Location) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -54,7 +59,7 @@ fun HomeRoute(
         }
     }
 
-    HomeScreen(uiState, locations, onClickLocation, viewModel::removeFavorite) {
+    HomeScreen(uiState, locations, contentPadding, onClickLocation, viewModel::removeFavorite) {
         viewModel.refreshCurrentWeather()
     }
 }
@@ -64,6 +69,7 @@ fun HomeRoute(
 fun HomeScreen(
     uiState: LoadingUiState<Unit>,
     locations: List<LocationWithCurrentWeather>,
+    contentPadding: PaddingValues,
     onClickLocation: (Location) -> Unit,
     onRemoveLocation: (Location) -> Unit,
     onRefresh: () -> Unit
@@ -80,23 +86,16 @@ fun HomeScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding =
-                    PaddingValues(
-                        bottom =
-                            WindowInsets.navigationBars
-                                .asPaddingValues()
-                                .calculateBottomPadding()
-                    )
+                contentPadding = contentPadding
             ) {
                 items(locations, key = { it.location.name }) {
                     WeatherCard(
                         titleCard = it.location.name,
                         stat = it.weather,
-                        modifier = Modifier
-                            .animateItem()
-                            .clickable {
-                                onClickLocation(it.location)
-                            }
+                        modifier = Modifier.animateItem(),
+                        onClick = {
+                            onClickLocation(it.location)
+                        }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),

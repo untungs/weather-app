@@ -1,20 +1,25 @@
 package com.untungs.weatherapp.feature.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.Alignment
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
@@ -28,8 +33,8 @@ fun HomeRoute(
     onClickLocation: (Location) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val locations by viewModel.favoriteLocations.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val locations by viewModel.favoriteLocations.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     val message = uiState.let {
@@ -54,7 +59,7 @@ fun HomeRoute(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: LoadingUiState<Unit>,
@@ -67,16 +72,28 @@ fun HomeScreen(
         EmptyScreen(text = "Your favorite locations will be shown here")
     } else {
         val isRefreshing = uiState is LoadingUiState.Loading
-        val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
 
-        Box(Modifier.pullRefresh(pullRefreshState)) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding =
+                    PaddingValues(
+                        bottom =
+                            WindowInsets.navigationBars
+                                .asPaddingValues()
+                                .calculateBottomPadding()
+                    )
+            ) {
                 items(locations, key = { it.location.name }) {
                     WeatherCard(
                         titleCard = it.location.name,
                         stat = it.weather,
                         modifier = Modifier
-                            .animateItemPlacement()
+                            .animateItem()
                             .clickable {
                                 onClickLocation(it.location)
                             }
@@ -86,7 +103,7 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             OutlinedButton(onClick = { onRemoveLocation(it.location) }) {
-                                Text(text = "Remove", color = MaterialTheme.colors.secondaryVariant)
+                                Text(text = "Remove", color = MaterialTheme.colorScheme.error)
                             }
                             TextButton(onClick = { onClickLocation(it.location) }) {
                                 Text(text = "Weather Forecast")
@@ -94,11 +111,8 @@ fun HomeScreen(
                         }
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
-            PullRefreshIndicator(isRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         }
     }
 }

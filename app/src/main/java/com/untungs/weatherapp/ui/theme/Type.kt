@@ -1,44 +1,35 @@
 package com.untungs.weatherapp.ui.theme
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Typography
+import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+// Set of Material 3 typography styles to start with
 val Typography = Typography(
-    body1 = TextStyle(
+    bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
     ),
-    h3 = TextStyle(
+    displayLarge = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 40.sp,
         letterSpacing = 0.sp
     ),
-    h5 = TextStyle(
+    titleLarge = TextStyle(
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
-    h6 = TextStyle(
+    labelMedium = TextStyle(
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        letterSpacing = 0.15.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
     )
-    /* Other default text styles to override
-    button = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp
-    ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
-    )
-    */
 )

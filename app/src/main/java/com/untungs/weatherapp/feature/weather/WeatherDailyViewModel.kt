@@ -3,14 +3,16 @@ package com.untungs.weatherapp.feature.weather
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.data.repository.LocationRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
+import com.untungs.weatherapp.nav.WeatherDaily
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class WeatherDailyViewModel @Inject constructor(
@@ -19,15 +21,13 @@ class WeatherDailyViewModel @Inject constructor(
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
-    private val city: String = checkNotNull(savedStateHandle[WeatherDailyDestination.city])
-    private val lat: Float = checkNotNull(savedStateHandle[WeatherDailyDestination.lat])
-    private val lon: Float = checkNotNull(savedStateHandle[WeatherDailyDestination.lon])
+    private val args: WeatherDaily = savedStateHandle.toRoute<WeatherDaily>()
 
-    private val weatherUiState = MutableStateFlow(WeatherUiState(city))
+    private val weatherUiState = MutableStateFlow(WeatherUiState(args.city))
     private val loadingUiState = MutableStateFlow<LoadingUiState<Unit>>(LoadingUiState.Unknown)
 
     val uiState = weatherUiState
-        .combine(locationRepository.getFavoriteLocation(lat, lon)) { uiState, location ->
+        .combine(locationRepository.getFavoriteLocation(args.lat, args.lon)) { uiState, location ->
             uiState.copy(isFavorite = location != null)
         }
         .stateIn(
@@ -54,14 +54,18 @@ class WeatherDailyViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val weatherDaily = weatherRepository.getWeatherDaily(lat, lon)
+                val weatherDaily = weatherRepository.getWeatherDaily(args.lat, args.lon)
                 weatherUiState.update { it.copy(weatherDaily = weatherDaily) }
 
                 if (fromUser) {
                     loadingUiState.update { LoadingUiState.Success(Unit) }
                 }
             } catch (error: Exception) {
-                loadingUiState.update { LoadingUiState.Error(error.message ?: SOMETHING_WENT_WRONG) }
+                loadingUiState.update {
+                    LoadingUiState.Error(
+                        error.message ?: SOMETHING_WENT_WRONG
+                    )
+                }
             }
         }
     }
@@ -70,14 +74,14 @@ class WeatherDailyViewModel @Inject constructor(
         val currentWeather = weatherUiState.value.weatherDaily?.current ?: return
 
         viewModelScope.launch {
-            locationRepository.addFavoriteLocation(lat, lon, city, currentWeather)
+            locationRepository.addFavoriteLocation(args.lat, args.lon, args.city, currentWeather)
         }
         weatherUiState.update { it.copy(favoriteChanged = true) }
     }
 
     fun removeFavorite() {
         viewModelScope.launch {
-            locationRepository.removeFavoriteLocation(lat, lon)
+            locationRepository.removeFavoriteLocation(args.lat, args.lon)
         }
         weatherUiState.update { it.copy(favoriteChanged = false) }
     }

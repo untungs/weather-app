@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.data.Location
@@ -34,7 +32,7 @@ fun SearchRoute(
     onClickItem: (location: Location) -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.loadingUiState.collectAsState()
+    val uiState by viewModel.loadingUiState.collectAsStateWithLifecycle()
     SearchScreen(uiState, onClickItem)
 }
 
@@ -100,7 +98,7 @@ fun SearchItem(location: Location, onClickItem: (location: Location) -> Unit) {
             text = location.name,
             modifier = Modifier.padding(12.dp)
         )
-        Divider()
+        HorizontalDivider()
     }
 }
 

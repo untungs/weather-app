@@ -1,45 +1,22 @@
 package com.untungs.weatherapp.feature.weather
 
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.untungs.weatherapp.data.Location
-import com.untungs.weatherapp.nav.AppDestination
+import com.untungs.weatherapp.nav.WeatherDaily
 import com.untungs.weatherapp.ui.component.AppBarState
-
-object WeatherDailyDestination : AppDestination {
-    val path: String = "weather_daily"
-    const val city = "city"
-    const val lat = "lat"
-    const val lon = "lon"
-    override val route: String = "$path?city={$city}&lat={$lat}&lon={$lon}"
-}
 
 fun NavGraphBuilder.weatherGraph(
     appBarState: AppBarState,
     snackbarHostState: SnackbarHostState
 ) {
-    composable(
-        route = WeatherDailyDestination.route,
-        arguments = listOf(
-            navArgument(WeatherDailyDestination.city) {
-                type = NavType.StringType
-            },
-            navArgument(WeatherDailyDestination.lat) {
-                type = NavType.FloatType
-            },
-            navArgument(WeatherDailyDestination.lon) {
-                type = NavType.FloatType
-            }
-        )
-    ) {
+    composable<WeatherDaily> {
         WeatherDailyRoute(appBarState, snackbarHostState)
     }
 }
 
 fun NavController.navigateToWeatherDaily(location: Location) = with(location) {
-    navigate("${WeatherDailyDestination.path}?city=${name}&lat=$lat&lon=$lon")
+    navigate(WeatherDaily(city = name, lat = lat, lon = lon))
 }

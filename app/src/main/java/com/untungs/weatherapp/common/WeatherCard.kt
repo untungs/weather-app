@@ -1,8 +1,10 @@
 package com.untungs.weatherapp.common
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -24,7 +26,7 @@ fun WeatherCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp, 8.dp, 8.dp, 0.dp),
-        elevation = 8.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -34,7 +36,7 @@ fun WeatherCard(
             Text(
                 text = titleCard,
                 modifier = Modifier.padding(8.dp, 0.dp),
-                style = MaterialTheme.typography.h5
+                style = MaterialTheme.typography.titleLarge
             )
             Row(
                 modifier = Modifier
@@ -62,7 +64,7 @@ fun WeatherCard(
                             )
                             Text(
                                 text = "${stat.temp}°",
-                                style = MaterialTheme.typography.h3
+                                style = MaterialTheme.typography.displayMedium
                             )
                         }
                     }
@@ -78,7 +80,7 @@ fun WeatherCard(
                             )
                             Text(
                                 text = "${stat.temp}°",
-                                style = MaterialTheme.typography.h4
+                                style = MaterialTheme.typography.displaySmall
                             )
                         }
                     }
@@ -86,7 +88,9 @@ fun WeatherCard(
                 Column(
                     modifier = Modifier.padding(16.dp, 8.dp)
                 ) {
-                    ProvideTextStyle(value = MaterialTheme.typography.subtitle2) {
+                    CompositionLocalProvider(
+                        LocalTextStyle provides MaterialTheme.typography.labelMedium
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 painter = painterResource(id = R.drawable.humidity_mid),
@@ -127,15 +131,5 @@ fun WeatherCardPreview() {
 @Composable
 fun WeatherCardDailyPreview() {
     val weather = Weather("", "", "")
-    WeatherCard(
-        "Monday",
-        WeatherStat.DailyWeatherStat(
-            "Monday",
-            0,
-            weather,
-            30.57f,
-            10.08f,
-            30.4f
-        )
-    )
+    WeatherCard("Monday", WeatherStat.DailyWeatherStat("Monday", 0, weather, 30.57f, 10.08f, 30.4f))
 }

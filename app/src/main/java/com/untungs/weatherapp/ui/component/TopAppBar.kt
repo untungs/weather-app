@@ -2,6 +2,7 @@ package com.untungs.weatherapp.ui.component
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -9,11 +10,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -22,8 +23,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.untungs.weatherapp.common.Function
 import kotlinx.coroutines.job
@@ -51,53 +52,47 @@ fun WeatherAppBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefaultAppBar(
     state: AppBarState,
     onBackClicked: Function,
     onSearchOpened: Function
 ) {
-    Surface(color = MaterialTheme.colors.primarySurface) {
-        TopAppBar(
-            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
-            title = { Text(text = state.title) },
-            backgroundColor = Color.Transparent,
-            elevation = 0.dp,
-            navigationIcon =
-                if (state.hasBackStack) {
-                    {
-                        IconButton(onClick = onBackClicked) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
-                    }
-                } else {
-                    null
-                },
-            actions = {
-                state.action?.let {
-                    IconButton(onClick = it.second) {
-                        Icon(
-                            imageVector = it.first,
-                            contentDescription = "Action",
-                            tint = Color.White
-                        )
-                    }
-                }
-                IconButton(onClick = onSearchOpened) {
+    TopAppBar(
+        title = { Text(text = state.title) },
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+        windowInsets = WindowInsets.statusBars,
+        navigationIcon = {
+            if (state.hasBackStack) {
+                IconButton(onClick = onBackClicked) {
                     Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.White
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
                     )
                 }
             }
-        )
-    }
+        },
+        actions = {
+            state.action?.let {
+                IconButton(onClick = it.second) {
+                    Icon(imageVector = it.first, contentDescription = "Action")
+                }
+            }
+            IconButton(onClick = onSearchOpened) {
+                Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon")
+            }
+        }
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchAppBar(
     onCloseClicked: () -> Unit,
@@ -112,10 +107,14 @@ fun SearchAppBar(
         }
     }
 
-    Surface(color = MaterialTheme.colors.primarySurface, modifier = Modifier.fillMaxWidth()) {
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         val customTextSelectionColors = TextSelectionColors(
-            handleColor = MaterialTheme.colors.onSurface,
-            backgroundColor = MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
+            handleColor = MaterialTheme.colorScheme.onSurface,
+            backgroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
         )
 
         CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
@@ -123,31 +122,31 @@ fun SearchAppBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars)
+                    .height(64.dp) // Match TopAppBar height
                     .focusRequester(focusRequester),
                 value = text,
                 onValueChange = { text = it },
                 placeholder = {
                     Text(
-                        modifier = Modifier.alpha(ContentAlpha.medium),
+                        modifier = Modifier.alpha(0.6f),
                         text = "Search",
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 textStyle =
-                    TextStyle(
-                        fontSize = MaterialTheme.typography.subtitle1.fontSize,
-                        color = MaterialTheme.colors.onPrimary
+                    MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onPrimary
                     ),
                 singleLine = true,
                 leadingIcon = {
                     IconButton(
-                        modifier = Modifier.alpha(ContentAlpha.medium),
+                        modifier = Modifier.alpha(0.6f),
                         onClick = { onSearchClicked(text) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search Icon",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
@@ -161,40 +160,39 @@ fun SearchAppBar(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close Icon",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
                 colors =
-                    TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        cursorColor = Color.White.copy(alpha = ContentAlpha.medium),
+                    TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent
                     ),
                 shape = RectangleShape
             )
         }
     }
 }
-//
-// @Preview
-// @Composable
-// fun DefaultAppBarPreview() {
-//    DefaultAppBar(
-//        AppBarState.Default(
-//            title = stringResource(id = R.string.app_name),
-//            hasBackStack = true,
-//            onBackClicked = {},
-//            onSearchTriggered = {}
-//        )
-//    )
-// }
-//
-// @Preview
-// @Composable
-// fun SearchAppBarPreview() {
-//    SearchAppBar(AppBarState.Search(onCloseClicked = {}, onSearchClicked = {}))
-// }
+
+@Preview
+@Composable
+fun DefaultAppBarPreview() {
+    DefaultAppBar(
+        AppBarState(title = "Weather App", hasBackStack = true, openSearch = false),
+        onBackClicked = {},
+        onSearchOpened = {}
+    )
+}
+
+@Preview
+@Composable
+fun SearchAppBarPreview() {
+    SearchAppBar(onCloseClicked = {}, onSearchClicked = {})
+}

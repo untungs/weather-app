@@ -23,14 +23,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
+import com.untungs.weatherapp.nav.WeatherDaily
 import com.untungs.weatherapp.ui.component.AppBarState
 import kotlinx.coroutines.launch
 
 @Composable
 fun WeatherDailyRoute(
+    args: WeatherDaily,
     appBarState: AppBarState,
     snackbarHostState: SnackbarHostState,
-    viewModel: WeatherDailyViewModel = hiltViewModel()
+    viewModel: WeatherDailyViewModel = hiltViewModel(
+        creationCallback = { factory: WeatherDailyViewModel.WeatherDailyViewModelFactory ->
+            factory.create(args)
+        }
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()

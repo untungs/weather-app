@@ -1,27 +1,30 @@
 package com.untungs.weatherapp.feature.weather
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.SOMETHING_WENT_WRONG
 import com.untungs.weatherapp.data.repository.LocationRepository
 import com.untungs.weatherapp.data.repository.WeatherRepository
 import com.untungs.weatherapp.nav.WeatherDaily
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class WeatherDailyViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = WeatherDailyViewModel.WeatherDailyViewModelFactory::class)
+class WeatherDailyViewModel @AssistedInject constructor(
+    @Assisted private val args: WeatherDaily,
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
-    private val args: WeatherDaily = savedStateHandle.toRoute<WeatherDaily>()
+    @AssistedFactory
+    interface WeatherDailyViewModelFactory {
+        fun create(args: WeatherDaily): WeatherDailyViewModel
+    }
 
     private val weatherUiState = MutableStateFlow(WeatherUiState(args.city))
     private val loadingUiState = MutableStateFlow<LoadingUiState<Unit>>(LoadingUiState.Unknown)

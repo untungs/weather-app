@@ -1,12 +1,16 @@
 package com.untungs.weatherapp.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,13 +74,29 @@ private fun CardContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            AsyncImage(
-                model = "https://openweathermap.org/img/wn/${stat.weather.icon}@4x.png",
+            Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .padding(8.dp),
-                contentDescription = "Weather Icon"
-            )
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                Color(0xFF03A9F4).copy(alpha = 0.5f),
+                                Color(0xFF81D4FA).copy(alpha = 0.3f),
+                                Color.Transparent
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = "https://openweathermap.org/img/wn/${stat.weather.icon}@4x.png",
+                    modifier = Modifier
+                        .size(72.dp)
+                        .padding(8.dp),
+                    contentDescription = "Weather Icon"
+                )
+            }
             when (stat) {
                 is WeatherStat.CurrentWeatherStat -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -144,14 +164,14 @@ private fun CardContent(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun WeatherCardPreview() {
     val weather = Weather("", "", "")
     WeatherCard("Today", WeatherStat.CurrentWeatherStat("Today", 0, weather, 30.57f, 10.08f, 30f))
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun WeatherCardDailyPreview() {
     val weather = Weather("", "", "")

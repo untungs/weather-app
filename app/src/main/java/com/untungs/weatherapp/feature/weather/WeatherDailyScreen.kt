@@ -11,9 +11,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,11 +47,27 @@ fun WeatherDailyRoute(
     val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(appBarState, uiState.isFavorite) {
-        appBarState.action = if (uiState.isFavorite) {
-            Icons.Filled.Favorite to { viewModel.removeFavorite() }
-        } else {
-            Icons.Filled.FavoriteBorder to { viewModel.addFavorite() }
+    DisposableEffect(appBarState, uiState.isFavorite) {
+        appBarState.action = {
+            IconToggleButton(
+                checked = uiState.isFavorite,
+                onCheckedChange = {
+                    if (it) viewModel.addFavorite() else viewModel.removeFavorite()
+                }
+            ) {
+                Icon(
+                    imageVector =
+                        if (uiState.isFavorite) Icons.Filled.Favorite
+                        else Icons.Filled.FavoriteBorder,
+                    contentDescription =
+                        if (uiState.isFavorite) "Remove from Favorite"
+                        else "Add to Favorite"
+                )
+            }
+        }
+
+        onDispose {
+            appBarState.action = null
         }
     }
     uiState.favoriteChanged?.let { isFavorite ->

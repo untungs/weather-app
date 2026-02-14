@@ -20,7 +20,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,7 @@ class AppBarState(
     val hasBackStack: Boolean,
     val openSearch: Boolean
 ) {
-    var action by mutableStateOf<Pair<ImageVector, Function>?>(null)
+    var action by mutableStateOf<(@Composable () -> Unit)?>(null)
 }
 
 @Composable
@@ -71,11 +70,7 @@ fun DefaultAppBar(
             }
         },
         actions = {
-            state.action?.let {
-                IconButton(onClick = it.second) {
-                    Icon(imageVector = it.first, contentDescription = "Action")
-                }
-            }
+            state.action?.invoke()
             IconButton(onClick = onSearchOpened) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon")
             }

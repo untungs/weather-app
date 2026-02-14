@@ -41,6 +41,11 @@ Standardize build logic and dependency management.
 - Convert `settings.gradle` -> `settings.gradle.kts`.
 - **Goal**: Type safety, better IDE support, current Android standard.
 
+#### 3. Compose BoM Migration
+- Migrate to `androidx.compose:compose-bom:2026.02.00`.
+- Remove manual versioning for individual Compose libraries in `libs.versions.toml`.
+- **Goal**: Simplified dependency management and guaranteed version compatibility.
+
 ### Phase 2: UI & Architecture
 Modernize the user interface and navigation stability.
 

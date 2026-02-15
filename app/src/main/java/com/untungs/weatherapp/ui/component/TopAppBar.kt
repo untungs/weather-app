@@ -96,62 +96,67 @@ fun SearchAppBar(
         }
     }
 
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .height(64.dp) // Match TopAppBar height
-            .focusRequester(focusRequester),
-        value = text,
-        onValueChange = { text = it },
-        placeholder = {
-            Text(
-                modifier = Modifier.alpha(0.6f),
-                text = "Search",
-                style = MaterialTheme.typography.headlineSmall
-            )
-        },
-        textStyle = MaterialTheme.typography.headlineSmall,
-        singleLine = true,
-        leadingIcon = {
-            IconButton(
-                modifier = Modifier.alpha(0.6f),
-                onClick = { onSearchClicked(text) }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon",
-                    tint = MaterialTheme.colorScheme.onSurface
+    Surface(
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .height(64.dp) // Match TopAppBar height
+                .focusRequester(focusRequester),
+            value = text,
+            onValueChange = { text = it },
+            placeholder = {
+                Text(
+                    modifier = Modifier.alpha(0.6f),
+                    text = "Search",
+                    style = MaterialTheme.typography.headlineSmall
                 )
-            }
-        },
-        trailingIcon = {
-            IconButton(
-                onClick = {
-                    if (text.isNotBlank()) text = "" else onCloseClicked()
-                },
-                modifier = Modifier.padding(end = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close Icon",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
-        colors =
-            TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceDim,
-                cursorColor = MaterialTheme.colorScheme.onSurface,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-        shape = RectangleShape
-    )
+            },
+            textStyle = MaterialTheme.typography.headlineSmall,
+            singleLine = true,
+            leadingIcon = {
+                IconButton(
+                    modifier = Modifier.alpha(0.6f),
+                    onClick = { onSearchClicked(text) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        if (text.isNotBlank()) text = "" else onCloseClicked()
+                    },
+                    modifier = Modifier.padding(end = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close Icon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
+            colors =
+                TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+            shape = RectangleShape
+        )
+    }
 }
 
 @Preview

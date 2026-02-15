@@ -11,7 +11,7 @@ import com.untungs.weatherapp.ui.component.AppBarState
 
 fun NavGraphBuilder.weatherGraph(
     appBarState: AppBarState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
 ) {
     composable<WeatherDaily> {
         val args = it.toRoute<WeatherDaily>()

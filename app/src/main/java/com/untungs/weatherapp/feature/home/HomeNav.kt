@@ -10,7 +10,5 @@ fun NavGraphBuilder.homeGraph(
     snackbarHostState: SnackbarHostState,
     onClickLocation: (Location) -> Unit
 ) {
-    composable<Home> {
-        HomeRoute(snackbarHostState, onClickLocation)
-    }
+    composable<Home> { HomeRoute(snackbarHostState, onClickLocation) }
 }

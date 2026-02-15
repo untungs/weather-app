@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -22,11 +20,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.untungs.weatherapp.common.Function
+import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 import kotlinx.coroutines.job
 
 class AppBarState(
@@ -34,7 +32,7 @@ class AppBarState(
     val hasBackStack: Boolean,
     val openSearch: Boolean
 ) {
-    var action by mutableStateOf<Pair<ImageVector, Function>?>(null)
+    var action by mutableStateOf<(@Composable () -> Unit)?>(null)
 }
 
 @Composable
@@ -61,14 +59,6 @@ fun DefaultAppBar(
 ) {
     TopAppBar(
         title = { Text(text = state.title) },
-        colors =
-            TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-        windowInsets = WindowInsets.statusBars,
         navigationIcon = {
             if (state.hasBackStack) {
                 IconButton(onClick = onBackClicked) {
@@ -80,15 +70,14 @@ fun DefaultAppBar(
             }
         },
         actions = {
-            state.action?.let {
-                IconButton(onClick = it.second) {
-                    Icon(imageVector = it.first, contentDescription = "Action")
-                }
-            }
+            state.action?.invoke()
             IconButton(onClick = onSearchOpened) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon")
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+        )
     )
 }
 
@@ -108,91 +97,84 @@ fun SearchAppBar(
     }
 
     Surface(
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
         modifier = Modifier.fillMaxWidth()
     ) {
-        val customTextSelectionColors = TextSelectionColors(
-            handleColor = MaterialTheme.colorScheme.onSurface,
-            backgroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-        )
-
-        CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .height(64.dp) // Match TopAppBar height
-                    .focusRequester(focusRequester),
-                value = text,
-                onValueChange = { text = it },
-                placeholder = {
-                    Text(
-                        modifier = Modifier.alpha(0.6f),
-                        text = "Search",
-                        color = MaterialTheme.colorScheme.onPrimary
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .height(64.dp) // Match TopAppBar height
+                .focusRequester(focusRequester),
+            value = text,
+            onValueChange = { text = it },
+            placeholder = {
+                Text(
+                    modifier = Modifier.alpha(0.6f),
+                    text = "Search",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            },
+            textStyle = MaterialTheme.typography.headlineSmall,
+            singleLine = true,
+            leadingIcon = {
+                IconButton(
+                    modifier = Modifier.alpha(0.6f),
+                    onClick = { onSearchClicked(text) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
-                },
-                textStyle =
-                    MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
-                    ),
-                singleLine = true,
-                leadingIcon = {
-                    IconButton(
-                        modifier = Modifier.alpha(0.6f),
-                        onClick = { onSearchClicked(text) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search Icon",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            if (text.isNotBlank()) text = "" else onCloseClicked()
-                        },
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close Icon",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                    ),
-                shape = RectangleShape
-            )
-        }
+                }
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        if (text.isNotBlank()) text = "" else onCloseClicked()
+                    },
+                    modifier = Modifier.padding(end = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close Icon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { onSearchClicked(text) }),
+            colors =
+                TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+            shape = RectangleShape
+        )
     }
 }
 
 @Preview
 @Composable
 fun DefaultAppBarPreview() {
-    DefaultAppBar(
-        AppBarState(title = "Weather App", hasBackStack = true, openSearch = false),
-        onBackClicked = {},
-        onSearchOpened = {}
-    )
+    WeatherAppTheme {
+        DefaultAppBar(
+            AppBarState(title = "Weather App", hasBackStack = true, openSearch = false),
+            onBackClicked = {},
+            onSearchOpened = {}
+        )
+    }
 }
 
 @Preview
 @Composable
 fun SearchAppBarPreview() {
-    SearchAppBar(onCloseClicked = {}, onSearchClicked = {})
+    WeatherAppTheme {
+        SearchAppBar(onCloseClicked = {}, onSearchClicked = {})
+    }
 }

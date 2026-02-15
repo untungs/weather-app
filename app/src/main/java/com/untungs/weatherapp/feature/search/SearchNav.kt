@@ -6,11 +6,9 @@ import androidx.navigation.compose.composable
 import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.nav.Search
 
-fun NavGraphBuilder.searchGraph(
-    onSearchItemClick: (location: Location) -> Unit
-) {
+fun NavGraphBuilder.searchGraph(onClickItem: (location: Location) -> Unit) {
     composable<Search> {
-        SearchRoute(onSearchItemClick)
+        SearchRoute(onClickItem)
     }
 }
 

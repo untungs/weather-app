@@ -74,7 +74,10 @@ fun DefaultAppBar(
             IconButton(onClick = onSearchOpened) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon")
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+        )
     )
 }
 

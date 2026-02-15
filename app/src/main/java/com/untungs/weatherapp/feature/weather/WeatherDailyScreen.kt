@@ -1,20 +1,16 @@
 package com.untungs.weatherapp.feature.weather
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +25,8 @@ import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
 import com.untungs.weatherapp.nav.WeatherDaily
 import com.untungs.weatherapp.ui.component.AppBarState
+import com.untungs.weatherapp.ui.component.LocalScaffoldPadding
+import com.untungs.weatherapp.ui.component.PullToRefresh
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,7 +34,6 @@ fun WeatherDailyRoute(
     args: WeatherDaily,
     appBarState: AppBarState,
     snackbarHostState: SnackbarHostState,
-    contentPadding: PaddingValues,
     viewModel: WeatherDailyViewModel = hiltViewModel(
         creationCallback = { factory: WeatherDailyViewModel.WeatherDailyViewModelFactory ->
             factory.create(args)
@@ -96,28 +93,21 @@ fun WeatherDailyRoute(
     WeatherDailyScreen(
         uiState = uiState,
         isRefreshing = loadingState == LoadingUiState.Loading,
-        contentPadding = contentPadding,
         onRefresh = viewModel::refreshWeather
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherDailyScreen(
     uiState: WeatherUiState,
     isRefreshing: Boolean,
-    contentPadding: PaddingValues,
     onRefresh: () -> Unit
 ) {
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
-        modifier = Modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding
-        ) {
+        LazyColumn(contentPadding = LocalScaffoldPadding.current) {
             uiState.weatherDaily?.let { stat ->
                 item {
                     WeatherCard(stat.current.day, stat.current)

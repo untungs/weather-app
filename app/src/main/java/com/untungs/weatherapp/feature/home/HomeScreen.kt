@@ -1,21 +1,17 @@
 package com.untungs.weatherapp.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,12 +25,13 @@ import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.common.WeatherCard
 import com.untungs.weatherapp.data.Location
 import com.untungs.weatherapp.data.LocationWithCurrentWeather
+import com.untungs.weatherapp.ui.component.LocalScaffoldPadding
+import com.untungs.weatherapp.ui.component.PullToRefresh
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeRoute(
     snackbarHostState: SnackbarHostState,
-    contentPadding: PaddingValues,
     onClickLocation: (Location) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -59,17 +56,15 @@ fun HomeRoute(
         }
     }
 
-    HomeScreen(uiState, locations, contentPadding, onClickLocation, viewModel::removeFavorite) {
+    HomeScreen(uiState, locations, onClickLocation, viewModel::removeFavorite) {
         viewModel.refreshCurrentWeather()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: LoadingUiState<Unit>,
     locations: List<LocationWithCurrentWeather>,
-    contentPadding: PaddingValues,
     onClickLocation: (Location) -> Unit,
     onRemoveLocation: (Location) -> Unit,
     onRefresh: () -> Unit
@@ -78,16 +73,8 @@ fun HomeScreen(
         EmptyScreen(text = "Your favorite locations will be shown here")
     } else {
         val isRefreshing = uiState is LoadingUiState.Loading
-
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = contentPadding
-            ) {
+        PullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
+            LazyColumn(contentPadding = LocalScaffoldPadding.current) {
                 items(locations, key = { it.location.name }) {
                     WeatherCard(
                         titleCard = it.location.name,

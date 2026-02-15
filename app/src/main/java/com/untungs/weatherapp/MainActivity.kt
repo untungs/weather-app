@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.untungs.weatherapp.nav.Home
 import com.untungs.weatherapp.nav.Search
 import com.untungs.weatherapp.nav.WeatherDaily
 import com.untungs.weatherapp.ui.component.AppBarState
+import com.untungs.weatherapp.ui.component.LocalScaffoldPadding
 import com.untungs.weatherapp.ui.component.WeatherAppBar
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -86,19 +88,21 @@ fun WeatherApp() {
                 )
             }
         ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Home,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                homeGraph(snackbarHostState, innerPadding) {
-                    navController.navigateToWeatherDaily(it)
+            CompositionLocalProvider(LocalScaffoldPadding provides innerPadding) {
+                NavHost(
+                    navController = navController,
+                    startDestination = Home,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    homeGraph(snackbarHostState) {
+                        navController.navigateToWeatherDaily(it)
+                    }
+                    searchGraph {
+                        navController.popBackStack<Search>(inclusive = true)
+                        navController.navigateToWeatherDaily(it)
+                    }
+                    weatherGraph(appBarState, snackbarHostState)
                 }
-                searchGraph(innerPadding) {
-                    navController.popBackStack<Search>(inclusive = true)
-                    navController.navigateToWeatherDaily(it)
-                }
-                weatherGraph(appBarState, snackbarHostState, innerPadding)
             }
         }
     }

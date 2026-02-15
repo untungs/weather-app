@@ -3,7 +3,6 @@ package com.untungs.weatherapp.feature.search
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,22 +23,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.untungs.weatherapp.common.EmptyScreen
 import com.untungs.weatherapp.common.LoadingUiState
 import com.untungs.weatherapp.data.Location
+import com.untungs.weatherapp.ui.component.LocalScaffoldPadding
 import com.untungs.weatherapp.ui.theme.WeatherAppTheme
 
 @Composable
 fun SearchRoute(
-    contentPadding: PaddingValues,
     onClickItem: (location: Location) -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.loadingUiState.collectAsStateWithLifecycle()
-    SearchScreen(uiState, contentPadding, onClickItem)
+    SearchScreen(uiState, onClickItem)
 }
 
 @Composable
 fun SearchScreen(
     uiState: LoadingUiState<List<Location>>,
-    contentPadding: PaddingValues = PaddingValues(),
     onClickItem: (location: Location) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -54,7 +52,7 @@ fun SearchScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = contentPadding
+                        contentPadding = LocalScaffoldPadding.current
                     ) { items(uiState.data) { SearchItem(it, onClickItem) } }
                 }
             }
